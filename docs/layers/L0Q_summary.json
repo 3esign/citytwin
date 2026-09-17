@@ -1,0 +1,17 @@
+{
+ "time": "2026-09-17T06:30:31+00:00",
+ "cells_ghs_built_ge_1500m2": 638,
+ "footprint_coverage_of_ghs_built_surface": 0.514,
+ "cells_possibly_missing_buildings": 213,
+ "height_origin_counts": {
+  "ghsl_agbh_2018_cell_mean": 11204,
+  "default_6m": 444,
+  "overture": 6
+ },
+ "floor_area_est_m2_total": 1638589,
+ "ghs_pop_2025_core_bbox": 20752,
+ "residents_assigned_to_buildings": 19112,
+ "official_city_estimate_2024": 28626,
+ "note": "bbox is not the city boundary; GHS-POP is modelled; official figure covers the whole city territory",
+ "state": "Estimated"
+}

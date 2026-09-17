@@ -1,0 +1,98 @@
+{
+ "time": "2026-09-16T23:59:32+00:00",
+ "algorithm": "walk.tourism_parking.v0",
+ "graph_nodes": 3870,
+ "graph_edges": 4769,
+ "attractions": [
+  {
+   "name": "Stari grad (Kastel)",
+   "origin": "overture (landmark_and_historical_building, 3 m from checked seed)",
+   "role": "attraction"
+  },
+  {
+   "name": "Arslanagića most",
+   "origin": "overture (bridge, 2 m from checked seed)",
+   "role": "attraction"
+  },
+  {
+   "name": "Hercegovačka Gračanica",
+   "origin": "overture (church_cathedral, 3 m from checked seed)",
+   "role": "attraction"
+  },
+  {
+   "name": "Manastir Tvrdoš",
+   "origin": "overture (church_cathedral, 338 m from checked seed)",
+   "role": "attraction"
+  },
+  {
+   "name": "Trg slobode i platani",
+   "origin": "overture (public_plaza, 2 m from checked seed)",
+   "role": "attraction"
+  },
+  {
+   "name": "Autobuska stanica",
+   "origin": "overture (bus_station, 5 m from checked seed)",
+   "role": "arrival"
+  }
+ ],
+ "parking_features": 159,
+ "centre_800m_floor_share_beyond_5min_of_parking": 13.1,
+ "top_corridor_segments": [
+  {
+   "segment": "a9dbfbfb-48f8-4871-95b2-33ca748479f6",
+   "class": "residential",
+   "paths": 55
+  },
+  {
+   "segment": "6c03cc30-52e4-4dfd-b297-a994b49848f4",
+   "class": "residential",
+   "paths": 55
+  },
+  {
+   "segment": "f1ec0fbd-d5ec-4cab-afc1-c9dbf3af82b6",
+   "class": "path",
+   "paths": 55
+  },
+  {
+   "segment": "5e1dae5c-e94a-4712-997a-eacb8663484d",
+   "class": "residential",
+   "paths": 55
+  },
+  {
+   "segment": "362f6a65-d901-4619-a0b4-e856691fa214",
+   "class": "residential",
+   "paths": 55
+  },
+  {
+   "segment": "866b88c9-be00-4c6f-afd9-d8c5ddde357d",
+   "class": "footway",
+   "paths": 55
+  },
+  {
+   "segment": "67b1fdfc-ea3e-4127-8023-fa3fc3f421bd",
+   "class": "footway",
+   "paths": 55
+  },
+  {
+   "segment": "6f69b1b4-50a3-4ded-af8f-dada8bf83895",
+   "class": "residential",
+   "paths": 55
+  },
+  {
+   "segment": "14bcf99b-d0ff-4a66-8275-f333ec773ce4",
+   "class": "service",
+   "paths": 55
+  },
+  {
+   "segment": "96969568-3049-4905-ac3e-4e24d1ec3259",
+   "class": "footway",
+   "paths": 55
+  }
+ ],
+ "state": "Estimated",
+ "caveats": [
+  "no counts: corridor intensity = number of shortest paths, not people",
+  "parking = mapped parking areas only; street parking and zones (R4) missing",
+  "attraction points come from name + category + distance to a checked seed; origin says which"
+ ]
+}

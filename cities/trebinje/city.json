@@ -1,0 +1,220 @@
+{
+  "id": "trebinje",
+  "name": {
+    "sr_cyrl": "Требиње",
+    "sr_latn": "Trebinje",
+    "en": "Trebinje"
+  },
+  "country": "BA",
+  "entity": "Republika Srpska",
+  "centre": {
+    "lon": 18.344,
+    "lat": 42.711
+  },
+  "bbox_core": {
+    "west": 18.25,
+    "south": 42.62,
+    "east": 18.45,
+    "north": 42.78,
+    "note": "urban area + Tvrdoš + Gračanica hill + Gorica lake edge"
+  },
+  "bbox_horizon": {
+    "west": 18.07,
+    "south": 42.53,
+    "east": 18.62,
+    "north": 42.89,
+    "note": "about 15-20 km buffer for terrain horizon shading"
+  },
+  "crs": {
+    "compute": "EPSG:25834",
+    "official_new": "EPSG:25834",
+    "official_new_note": "ETRS89 / UTM 34N - RS reference system (Zakon o premjeru i katastru RS, cl. 31-33; REFRS, SRPOS)",
+    "official_legacy": "EPSG:8678",
+    "official_legacy_note": "DKS: MGI 1901 / Balkans zone 6 (Bessel, Gauss-Krueger); EPSG:3908 is deprecated and replaced by EPSG:8678 (same definition). Transformation: EPSG \"MGI 1901 to ETRS89 (7)\" for BiH, ~1 m; official RUGIPP parameters to be requested (R2)",
+    "web": "EPSG:4326",
+    "decided": "2026-09-17"
+  },
+  "population_official": {
+    "2013_census": 28407,
+    "2024_estimate_rzs_rs": 28626,
+    "source": "RZS RS (see research/trebinje_data_catalogue)"
+  },
+  "languages": [
+    "sr-Cyrl",
+    "sr-Latn",
+    "en"
+  ],
+  "questions_candidate": [
+    {
+      "id": "Q-SOLAR",
+      "text": "Gdje prvo postaviti solarne panele?",
+      "algorithms": [
+        "A1"
+      ]
+    },
+    {
+      "id": "Q-TREES",
+      "text": "Gdje posaditi nova stabla?",
+      "algorithms": [
+        "A2",
+        "A3"
+      ]
+    },
+    {
+      "id": "Q-PARKING",
+      "text": "Gdje nam treba parking?",
+      "algorithms": [
+        "A4",
+        "A5"
+      ]
+    },
+    {
+      "id": "Q-STREET",
+      "text": "Šta će se dogoditi sa saobraćajem ako promijenimo ovu ulicu?",
+      "algorithms": [
+        "A4"
+      ]
+    },
+    {
+      "id": "Q-RETROFIT",
+      "text": "Koji javni objekat prvo energetski obnoviti?",
+      "algorithms": [
+        "A7",
+        "A1"
+      ]
+    },
+    {
+      "id": "Q-TOURISM",
+      "text": "Gdje razvijati turističke sadržaje?",
+      "algorithms": [
+        "A5",
+        "A9"
+      ]
+    }
+  ],
+  "attractions": [
+    {
+      "name": "Stari grad (Kastel)",
+      "pattern": "stari grad|стари град|kastel|каштел",
+      "categories": [
+        "landmark_and_historical_building",
+        "historic_site",
+        "monument"
+      ],
+      "seed": [
+        18.3467,
+        42.7107
+      ],
+      "seed_source": "Overture place 'Stari grad Trebinje' (historic_site), to verify on site"
+    },
+    {
+      "name": "Arslanagića most",
+      "pattern": "arslanagi|арсланаги",
+      "categories": [
+        "bridge",
+        "landmark_and_historical_building",
+        "historic_site"
+      ],
+      "seed": [
+        18.354,
+        42.7147
+      ],
+      "seed_source": "Overture place 'Arslanagić Bridge' (bridge)"
+    },
+    {
+      "name": "Hercegovačka Gračanica",
+      "pattern": "gra[čc]anica|грачаница",
+      "categories": [
+        "church_cathedral",
+        "christian_place_of_worship",
+        "religious_organization",
+        "landmark_and_historical_building"
+      ],
+      "seed": [
+        18.3599,
+        42.7107
+      ],
+      "seed_source": "Overture place 'Hercegovacka Gracanica Temple'"
+    },
+    {
+      "name": "Manastir Tvrdoš",
+      "pattern": "tvrdo[šs]|тврдош",
+      "categories": [
+        "church_cathedral",
+        "christian_place_of_worship",
+        "monastery"
+      ],
+      "seed": [
+        18.2967,
+        42.7186
+      ],
+      "seed_source": "Wikipedia 'Tvrdoš Monastery' 42.7186 N 18.2967 E (checked 2026-09-17)"
+    },
+    {
+      "name": "Trg slobode i platani",
+      "pattern": "trg slobode|трг слободе|platani",
+      "categories": [
+        "public_plaza",
+        "park"
+      ],
+      "seed": [
+        18.3452,
+        42.7115
+      ],
+      "seed_source": "Overture place 'Trg slobode' (public_plaza)"
+    },
+    {
+      "name": "Autobuska stanica",
+      "pattern": "autobusk|аутобуск",
+      "categories": [
+        "bus_station",
+        "public_transit_facility_or_service"
+      ],
+      "seed": [
+        18.342,
+        42.7072
+      ],
+      "seed_source": "Overture place 'Autobuska Stanica Trebinje'",
+      "role": "arrival"
+    }
+  ],
+  "public_building_categories": [
+    "elementary_school",
+    "high_school",
+    "school",
+    "college_university",
+    "education",
+    "specialty_school",
+    "art_school",
+    "library",
+    "theatre",
+    "cultural_center",
+    "history_museum",
+    "modern_art_museum",
+    "museum",
+    "hospital",
+    "medical_center",
+    "public_health_clinic",
+    "public_service_and_government",
+    "central_government_office",
+    "town_hall",
+    "police_department",
+    "fire_department",
+    "stadium_arena",
+    "sports_center",
+    "community_center",
+    "post_office",
+    "kindergarten",
+    "preschool"
+  ],
+  "script": {
+    "official": "sr-Cyrl",
+    "ui_default": "sr-Cyrl",
+    "ui_toggle": [
+      "sr-Cyrl",
+      "sr-Latn",
+      "en"
+    ],
+    "decided": "2026-09-17"
+  }
+}

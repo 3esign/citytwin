@@ -1,0 +1,9 @@
+.venv/
+_tools/
+__pycache__/
+cities/*/data/raw/
+cities/*/data/work/
+cities/*/data/layers/*.tif
+cities/*/data/layers/*.gpkg
+cities/*/data/layers/*.geojson
+*.part

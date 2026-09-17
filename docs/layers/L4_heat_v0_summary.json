@@ -1,0 +1,16 @@
+{
+ "time": "2026-09-16T23:40:12+00:00",
+ "algorithm": "heat_green.v0",
+ "urban_lst_mean_c": 38.7,
+ "urban_lst_sd_c": 2.4,
+ "urban_lst_p95_c": 41.9,
+ "rural_lst_mean_c": 33.4,
+ "urban_ndvi_mean": 0.27,
+ "priority_cells_top10pct": 1306,
+ "state": "Estimated",
+ "caveats": [
+  "surface temperature at ~10:00 local overpass, not air temperature at night",
+  "Landsat thermal band is 100 m native, delivered at 30 m",
+  "priority weights are a first proposal for the City to change"
+ ]
+}

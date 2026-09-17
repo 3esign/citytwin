@@ -1,0 +1,178 @@
+[
+ {
+  "id": "b322ddc0-2462-403c-abf2-444ab18a93f5",
+  "public_hint": "hospital",
+  "public_category": "building class",
+  "class": "hospital",
+  "footprint_m2": 5728.651039529,
+  "kwp": 687.4,
+  "kwh_yr": 825980.0,
+  "irr_kwh_m2_yr": 1502.0,
+  "beam_loss_pct": 1.9
+ },
+ {
+  "id": "0d76275b-fc95-4590-ae9f-76e56fbad24e",
+  "public_hint": "Dom Zdravlja Trebinje",
+  "public_category": "medical_center",
+  "class": null,
+  "footprint_m2": 3169.8326720257,
+  "kwp": 380.4,
+  "kwh_yr": 457393.0,
+  "irr_kwh_m2_yr": 1503.0,
+  "beam_loss_pct": 1.6
+ },
+ {
+  "id": "bdb9d9e2-151f-44e1-a697-637ed7481e52",
+  "public_hint": "Osnovna Skola Vuk Karadzic",
+  "public_category": "elementary_school",
+  "class": "school",
+  "footprint_m2": 2889.6427284955,
+  "kwp": 346.8,
+  "kwh_yr": 415605.0,
+  "irr_kwh_m2_yr": 1498.0,
+  "beam_loss_pct": 1.9
+ },
+ {
+  "id": "04f3ec08-b9ba-4bee-8541-69414c295114",
+  "public_hint": "Osnovna Skola Sveti Vasilije Ostroski",
+  "public_category": "elementary_school",
+  "class": "school",
+  "footprint_m2": 2839.8587763564,
+  "kwp": 340.8,
+  "kwh_yr": 409233.0,
+  "irr_kwh_m2_yr": 1501.0,
+  "beam_loss_pct": 1.2
+ },
+ {
+  "id": "2de8a63a-eebd-4cc8-b8ed-57cbc84bcb8d",
+  "public_hint": "Kulturna Scena Male Stvari",
+  "public_category": "theatre",
+  "class": null,
+  "footprint_m2": 2437.8288282851,
+  "kwp": 292.6,
+  "kwh_yr": 347843.0,
+  "irr_kwh_m2_yr": 1486.0,
+  "beam_loss_pct": 2.3
+ },
+ {
+  "id": "b208f76b-b654-4860-ac09-b07bc2607811",
+  "public_hint": "school",
+  "public_category": "building class",
+  "class": "school",
+  "footprint_m2": 2284.6755061316,
+  "kwp": 274.2,
+  "kwh_yr": 330795.0,
+  "irr_kwh_m2_yr": 1508.0,
+  "beam_loss_pct": 1.1
+ },
+ {
+  "id": "4f1c3841-da0b-430d-99f3-8c0279384e75",
+  "public_hint": "\"Miloš Mrdić\"",
+  "public_category": "town_hall",
+  "class": null,
+  "footprint_m2": 2081.4272977435,
+  "kwp": 249.8,
+  "kwh_yr": 302758.0,
+  "irr_kwh_m2_yr": 1515.0,
+  "beam_loss_pct": 0.9
+ },
+ {
+  "id": "ee74caee-6a38-49a8-874f-c618621c4d33",
+  "public_hint": "Kulturni centar Trebinje",
+  "public_category": "cultural_center",
+  "class": null,
+  "footprint_m2": 1702.0901018338,
+  "kwp": 204.2,
+  "kwh_yr": 247490.0,
+  "irr_kwh_m2_yr": 1515.0,
+  "beam_loss_pct": 0.9
+ },
+ {
+  "id": "2ff2b2e6-3294-476b-91d3-5cb3faa2bc61",
+  "public_hint": "Osnovna škola Jovan Jovanović Zmaj",
+  "public_category": "elementary_school",
+  "class": "school",
+  "footprint_m2": 1615.1707202804,
+  "kwp": 193.8,
+  "kwh_yr": 234886.0,
+  "irr_kwh_m2_yr": 1515.0,
+  "beam_loss_pct": 0.9
+ },
+ {
+  "id": "82668b83-e0bb-47dc-83ac-8c67edebf4f5",
+  "public_hint": "university",
+  "public_category": "building class",
+  "class": "university",
+  "footprint_m2": 1088.5913066964,
+  "kwp": 130.6,
+  "kwh_yr": 158392.0,
+  "irr_kwh_m2_yr": 1516.0,
+  "beam_loss_pct": 0.8
+ },
+ {
+  "id": "82daa637-6816-499b-9c4b-caaf383e9ad5",
+  "public_hint": "Sportska dvorana Bregovi",
+  "public_category": "stadium_arena",
+  "class": null,
+  "footprint_m2": 1016.7254353008,
+  "kwp": 122.0,
+  "kwh_yr": 143960.0,
+  "irr_kwh_m2_yr": 1475.0,
+  "beam_loss_pct": 3.1
+ },
+ {
+  "id": "cffe9102-a5c5-4c24-a6c2-2d1741917e20",
+  "public_hint": "American Corner Trebinje",
+  "public_category": "library",
+  "class": null,
+  "footprint_m2": 605.3331009934,
+  "kwp": 72.6,
+  "kwh_yr": 87817.0,
+  "irr_kwh_m2_yr": 1512.0,
+  "beam_loss_pct": 0.9
+ },
+ {
+  "id": "01a08340-f518-4b2c-add6-752d242129dd",
+  "public_hint": "JU Tehnička škola",
+  "public_category": "high_school",
+  "class": "school",
+  "footprint_m2": 537.3639005309,
+  "kwp": 64.4,
+  "kwh_yr": 77692.0,
+  "irr_kwh_m2_yr": 1508.0,
+  "beam_loss_pct": 1.1
+ },
+ {
+  "id": "f2ecdca5-4fd4-47ad-a4b9-43c6cf0154a6",
+  "public_hint": "school",
+  "public_category": "building class",
+  "class": "school",
+  "footprint_m2": 441.2244537186,
+  "kwp": 53.0,
+  "kwh_yr": 64830.0,
+  "irr_kwh_m2_yr": 1529.0,
+  "beam_loss_pct": 1.4
+ },
+ {
+  "id": "3cd5afd8-9ec7-453e-b000-b966beb4fd0d",
+  "public_hint": "Muzej Hercegovine Trebinje",
+  "public_category": "history_museum",
+  "class": null,
+  "footprint_m2": 385.5380730354,
+  "kwp": 46.2,
+  "kwh_yr": 55699.0,
+  "irr_kwh_m2_yr": 1507.0,
+  "beam_loss_pct": 1.4
+ },
+ {
+  "id": "57f13123-9d97-4ba3-bfbd-0de8a499ff51",
+  "public_hint": "Dom mladih Trebinje",
+  "public_category": "cultural_center",
+  "class": null,
+  "footprint_m2": 185.8094905662,
+  "kwp": 22.2,
+  "kwh_yr": 26747.0,
+  "irr_kwh_m2_yr": 1506.0,
+  "beam_loss_pct": 1.2
+ }
+]

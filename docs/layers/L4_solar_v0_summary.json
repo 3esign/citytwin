@@ -1,0 +1,36 @@
+{
+ "time": "2026-09-17T06:31:35+00:00",
+ "algorithm": "solar.rooftop.v0",
+ "params": {
+  "ghi_kwh_m2_yr": null,
+  "ghi_source": "Global Solar Atlas v2 (S-010), sampled per building",
+  "diffuse_fraction": 0.35,
+  "usable_roof_share": 0.6,
+  "module_efficiency": 0.2,
+  "performance_ratio": 0.8,
+  "kwp_per_m2": 0.2,
+  "horizon_min_m": 300,
+  "horizon_max_m": 20000,
+  "horizon_step_m": 60,
+  "azimuths": 36,
+  "min_footprint_m2": 30
+ },
+ "buildings": 9414,
+ "public_buildings_detected": 16,
+ "total_kwp": 163434,
+ "total_mwh_yr": 195376,
+ "public_kwp": 3481,
+ "public_mwh_yr": 4187,
+ "irr_min_max": [
+  1265.0,
+  1561.0
+ ],
+ "beam_loss_pct_median": 1.8,
+ "state": "Estimated",
+ "caveats": [
+  "terrain horizon only (>300 m); no neighbour or tree shading",
+  "horizontal-plane irradiance; no tilt/orientation",
+  "footprint as roof area proxy; usable share is a parameter",
+  "public buildings detected from open data — incomplete until the City register (R3)"
+ ]
+}

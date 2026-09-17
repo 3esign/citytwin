@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="sr-Latn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Digitalno Trebinje</title>
+<meta name="description" content="CityTwin pilot for Trebinje — S. Poturak, D. Golubović Matić (University Union – Nikola Tesla). Contact: poturaksemir@gmail.com">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+<script src="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<style>
+:root{--paper:#f3f1ec;--ink:#1d1f22;--mute:#6b6f76;--line:#d9d5cc;--panel:rgba(250,249,246,.94);
+--solar:#e08a1e;--walk:#2f6fb3;--park:#9b3d5c;--heat:#c0392b;--water:#9cc3d5;--green:#c9d8b6}
+@media (prefers-color-scheme:dark){:root{--paper:#15171a;--ink:#eceae4;--mute:#9a9ea5;--line:#2c3035;--panel:rgba(24,26,29,.94);--water:#274455;--green:#26331f}}
+*{box-sizing:border-box}html,body{margin:0;height:100%;background:var(--paper);color:var(--ink);font:15px/1.45 "Inter",system-ui,sans-serif}
+#map{position:absolute;inset:0}
+.panel{position:absolute;left:16px;top:16px;width:min(380px,calc(100% - 32px));max-height:calc(100% - 32px);overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px 18px 14px;backdrop-filter:blur(6px)}
+h1{padding-right:84px;font-size:13px;letter-spacing:.14em;text-transform:uppercase;margin:0 0 2px;color:var(--mute);font-weight:600}
+h2{font-size:22px;margin:0 0 12px;font-weight:650;letter-spacing:-.01em}
+.q{display:block;width:100%;text-align:left;border:1px solid var(--line);background:transparent;color:inherit;border-radius:10px;padding:10px 12px;margin:6px 0;font:inherit;cursor:pointer}
+.q[aria-pressed=true]{border-color:var(--acc);box-shadow:inset 3px 0 0 var(--acc)}
+.q small{display:block;color:var(--mute)}
+.ans{margin-top:12px;border-top:1px solid var(--line);padding-top:12px}
+.kpi{display:flex;gap:14px;flex-wrap:wrap;margin:6px 0 10px}.kpi div{min-width:96px}.kpi b{display:block;font-size:20px}
+.kpi span{color:var(--mute);font-size:12px}
+.legend{height:8px;border-radius:4px;margin:6px 0 2px}.lg{display:flex;justify-content:space-between;font-size:12px;color:var(--mute)}
+.state{display:inline-block;font-size:11px;letter-spacing:.06em;text-transform:uppercase;border:1px solid var(--line);border-radius:99px;padding:1px 8px;color:var(--mute)}
+ol{padding-left:18px;margin:6px 0}li{margin:2px 0}
+.lbl{font-size:12px;font-weight:600;color:var(--ink);text-shadow:0 0 3px var(--paper),0 0 3px var(--paper),0 0 3px var(--paper);white-space:nowrap;pointer-events:none}
+.scr{position:absolute;right:14px;top:14px;display:flex;gap:4px}.scr button{font:inherit;font-size:11px;border:1px solid var(--line);background:transparent;color:var(--mute);border-radius:99px;padding:1px 8px;cursor:pointer}
+.scr button[aria-pressed=true]{color:var(--ink);border-color:var(--ink)}
+.src{font-size:11.5px;color:var(--mute);margin-top:12px}
+@media (max-width:600px){.panel{top:auto;bottom:0;left:0;width:100%;max-height:48%;border-radius:14px 14px 0 0}}
+</style>
+</head>
+<body>
+<div id="map"></div>
+<div class="panel">
+  <div class="scr"><button data-s="cyr" aria-pressed="true">Ћир</button><button data-s="lat">Lat</button></div>
+  <h1>Model grada · pilot</h1>
+  <h2>Trebinje</h2>
+  <button class="q" data-q="solar" style="--acc:var(--solar)">Gdje prvo postaviti solarne panele?<small>Solarni potencijal krovova · javni objekti</small></button>
+  <button class="q" data-q="heat" style="--acc:var(--heat)">Gdje posaditi nova stabla?<small>Najtoplije površine sa najmanje zelenila</small></button>
+  <button class="q" data-q="walk" style="--acc:var(--walk)">Kuda se kreću posjetioci?<small>Pješački koridori između atrakcija i parkinga</small></button>
+  <button class="q" data-q="park" style="--acc:var(--park)">Gdje nam treba parking?<small>Minuti hoda do najbližeg parkinga</small></button>
+  <div class="ans" id="ans"><span class="state">Učitavanje</span></div>
+  <div class="src">Podaci: © OpenStreetMap saradnici i Overture Maps Foundation (ODbL); Copernicus DEM © DLR/Airbus; ESA WorldCover (CC-BY-4.0); Global Solar Atlas © World Bank Group, Solargis (CC-BY-4.0). Svi rezultati modela su <b>procjene</b>, ne mjerenja.<br>Autori: doc. dr Semir Poturak, prof. dr Darinka Golubović Matić — Fakultet za menadžment u građevinarstvu, Univerzitet „Union – Nikola Tesla“. Kontakt: poturaksemir@gmail.com · <a href="https://github.com/3esign/citytwin">GitHub</a></div>
+</div>
+<script>
+const L = p => fetch('layers/' + p).then(r => r.ok ? r.json() : null).catch(() => null);
+// big layers: let MapLibre fetch them itself (a HEAD request only checks that they exist)
+const U = p => fetch('layers/' + p, {method: 'HEAD'}).then(r => r.ok ? new URL('layers/' + p, location.href).href : null).catch(() => null);
+const fmt = n => n == null ? '–' : Number(n).toLocaleString('sr-Latn');
+const map = new maplibregl.Map({container: 'map', center: [18.344, 42.711], zoom: 14.6, pitch: 50, bearing: -18,
+  style: {version: 8, glyphs: 'https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf', sources: {}, layers: [
+    {id: 'bg', type: 'background', paint: {'background-color': getComputedStyle(document.documentElement).getPropertyValue('--paper').trim()}}]},
+  attributionControl: false});
+map.addControl(new maplibregl.NavigationControl({visualizePitch: true}), 'top-right');
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+let S = {};
+map.on('load', async () => {
+  const [landuse, water, seg, solar, walk, parkMin, att, park, sSolar, sWalk, top, heat, sHeat] = await Promise.all([
+    U('L0_land_use.geojson'), U('L0_water.geojson'), U('L0_segments.geojson'), U('L4_solar_v0.geojson'),
+    U('L4_walk_v0_corridors.geojson'), U('L4_walk_v0_parking_minutes.geojson'), L('L4_walk_v0_attractions.geojson'),
+    U('L4_walk_v0_parking.geojson'), L('L4_solar_v0_summary.json'), L('L4_walk_v0_summary.json'),
+    L('L4_solar_v0_top_public.json'), U('L4_heat_v0_cells.geojson'), L('L4_heat_v0_summary.json')]);
+  S = {sSolar, sWalk, top, sHeat};
+  const add = (id, data) => data && map.addSource(id, {type: 'geojson', data});
+  add('landuse', landuse); add('water', water); add('seg', seg); add('solar', solar); add('walk', walk);
+  add('parkmin', parkMin); add('att', att); add('park', park); add('heat', heat);
+  if (landuse) map.addLayer({id: 'green', type: 'fill', source: 'landuse', filter: ['in', ['get', 'subtype'], ['literal', ['park', 'recreation', 'agriculture', 'horticulture', 'protected']]], paint: {'fill-color': css('--green'), 'fill-opacity': .7}});
+  if (water) map.addLayer({id: 'water', type: 'fill', source: 'water', filter: ['==', ['geometry-type'], 'Polygon'], paint: {'fill-color': css('--water')}});
+  if (water) map.addLayer({id: 'waterline', type: 'line', source: 'water', filter: ['==', ['geometry-type'], 'LineString'], paint: {'line-color': css('--water'), 'line-width': 2}});
+  if (seg) map.addLayer({id: 'streets', type: 'line', source: 'seg', filter: ['==', ['get', 'subtype'], 'road'], paint: {'line-color': css('--line'), 'line-width': ['interpolate', ['linear'], ['zoom'], 12, .5, 17, 4]}});
+  const h = ['coalesce', ['get', 'height'], ['*', 3.2, ['coalesce', ['get', 'num_floors'], 2]]];
+  if (solar) map.addLayer({id: 'solar', type: 'fill-extrusion', source: 'solar', layout: {visibility: 'none'}, paint: {
+    'fill-extrusion-height': ['coalesce', ['get', 'height_est'], 8], 'fill-extrusion-opacity': .92,
+    'fill-extrusion-color': ['case', ['get', 'is_public'], ['interpolate', ['linear'], ['get', 'kwh_yr'], 0, '#f6dfb8', 20000, '#e08a1e', 150000, '#8a3d00'],
+      ['interpolate', ['linear'], ['get', 'irr_kwh_m2_yr'], 1100, '#d9d4c9', 1600, '#c9b89a']]}});
+  if (parkMin) map.addLayer({id: 'park', type: 'fill-extrusion', source: 'parkmin', layout: {visibility: 'none'}, paint: {
+    'fill-extrusion-height': 7, 'fill-extrusion-opacity': .92,
+    'fill-extrusion-color': ['case', ['==', ['get', 'walk_min_to_parking'], null], '#bbb', ['interpolate', ['linear'], ['get', 'walk_min_to_parking'], 0, '#f1e3e8', 5, '#c2728e', 12, '#5b1830']]}});
+  if (heat) map.addLayer({id: 'heat', type: 'fill-extrusion', source: 'heat', layout: {visibility: 'none'}, paint: {
+    'fill-extrusion-height': ['*', 120, ['get', 'priority']], 'fill-extrusion-opacity': .8,
+    'fill-extrusion-color': ['interpolate', ['linear'], ['get', 'lst_c'], 30, '#f5c6a5', 40, '#e0603a', 48, '#7a1414']}});
+  if (walk) map.addLayer({id: 'walk', type: 'line', source: 'walk', layout: {visibility: 'none', 'line-cap': 'round'}, paint: {
+    'line-color': css('--walk'), 'line-width': ['interpolate', ['linear'], ['get', 'paths'], 1, 1.2, 40, 9], 'line-opacity': .85}});
+  if (park) map.addLayer({id: 'parkpts', type: 'circle', source: 'park', layout: {visibility: 'none'}, paint: {'circle-radius': 5, 'circle-color': '#fff', 'circle-stroke-color': css('--park'), 'circle-stroke-width': 2}});
+  if (att) map.addLayer({id: 'att', type: 'circle', source: 'att', paint: {'circle-radius': 6, 'circle-color': css('--ink'), 'circle-stroke-color': css('--paper'), 'circle-stroke-width': 2}});
+  if (att) att.features.forEach(f => {
+    const el = document.createElement('div'); el.className = 'lbl'; el.dataset.lat = f.properties.name;
+    el.dataset.cyr = toCyr(f.properties.name); el.textContent = el.dataset.cyr;
+    new maplibregl.Marker({element: el, anchor: 'top', offset: [0, 8]}).setLngLat(f.geometry.coordinates).addTo(map);
+  });
+  map.on('click', e => {
+    const f = map.queryRenderedFeatures(e.point, {layers: ['solar', 'park', 'walk', 'heat'].filter(l => map.getLayer(l))})[0];
+    if (!f) return; const p = f.properties;
+    const html = f.layer.id === 'solar' ? `<b>${p.public_hint && p.public_hint !== 'null' ? p.public_hint : 'Objekat'}</b><br>${fmt(p.kwh_yr)} kWh/god · ${fmt(p.kwp)} kWp<br>zračenje ${fmt(p.irr_kwh_m2_yr)} kWh/m² · gubitak od reljefa ${p.beam_loss_pct}%`
+      : f.layer.id === 'heat' ? `površina ${p.lst_c} °C · NDVI ${p.ndvi}` : f.layer.id === 'park' ? `${p.walk_min_to_parking} min hoda do parkinga` : `${p.paths} najkraćih puteva prolazi ovuda`;
+    new maplibregl.Popup().setLngLat(e.lngLat).setHTML(html + '<br><span class="state">procjena</span>').addTo(map);
+  });
+  document.querySelectorAll('.q').forEach(b => b.onclick = () => show(b.dataset.q));
+  show('solar');
+  applyScript();
+});
+// --- script: Serbian Latin -> Cyrillic for everything the page says (numbers and brands untouched)
+const L2C = {'lj':'љ','Lj':'Љ','LJ':'Љ','nj':'њ','Nj':'Њ','NJ':'Њ','dž':'џ','Dž':'Џ','DŽ':'Џ','a':'а','b':'б','v':'в','g':'г','d':'д','đ':'ђ','e':'е','ž':'ж','z':'з','i':'и','j':'ј','k':'к','l':'л','m':'м','n':'н','o':'о','p':'п','r':'р','s':'с','t':'т','ć':'ћ','u':'у','f':'ф','h':'х','c':'ц','č':'ч','š':'ш'};
+const KEEP = /(OpenStreetMap|Overture Maps Foundation|ODbL|Copernicus DEM|DLR\/Airbus|ESA WorldCover|CC-BY-4\.0|Global Solar Atlas|World Bank Group|Solargis|Landsat 8\/9|NDVI|MWh|kWh|kWp|GWh|°C|m²)/g;
+function toCyr(t) {
+  return t.split(KEEP).map((part, i) => i % 2 ? part : part.replace(/[LN]j|[LN]J|lj|nj|D[žŽ]|dž|./g, ch => {
+    if (L2C[ch]) return L2C[ch];
+    const lo = ch.toLowerCase(); if (L2C[lo]) return L2C[lo].toUpperCase(); return ch; })).join('');
+}
+let script = 'cyr';
+const orig = new WeakMap();
+function applyScript(root = document.querySelector('.panel')) {
+  const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  for (let n; (n = w.nextNode());) {
+    if (n.parentElement.closest('.scr')) continue;
+    if (!orig.has(n)) orig.set(n, n.nodeValue);
+    n.nodeValue = script === 'cyr' ? toCyr(orig.get(n)) : orig.get(n);
+  }
+  document.documentElement.lang = script === 'cyr' ? 'sr-Cyrl' : 'sr-Latn';
+  document.querySelectorAll('.lbl').forEach(el => el.textContent = script === 'cyr' ? el.dataset.cyr : el.dataset.lat);
+}
+document.querySelectorAll('.scr button').forEach(b => b.onclick = () => {
+  script = b.dataset.s; document.querySelectorAll('.scr button').forEach(x => x.setAttribute('aria-pressed', x === b)); applyScript();
+});
+function show(q) {
+  document.querySelectorAll('.q').forEach(b => b.setAttribute('aria-pressed', b.dataset.q === q));
+  const vis = {solar: ['solar'], heat: ['heat'], walk: ['walk', 'parkpts'], park: ['park', 'parkpts']}[q];
+  ['solar', 'heat', 'walk', 'park', 'parkpts'].forEach(l => map.getLayer(l) && map.setLayoutProperty(l, 'visibility', vis.includes(l) ? 'visible' : 'none'));
+  const a = document.getElementById('ans');
+  setTimeout(() => applyScript(), 0);
+  if (q === 'solar') {
+    const s = S.sSolar; if (!s) return a.innerHTML = '<span class="state">Nedostupno</span> Sloj još nije izračunat.';
+    const rows = (S.top || []).slice(0, 10).map(t => `<li>${t.public_hint || 'javni objekat'} — ${fmt(Math.round(t.kwh_yr))} kWh/god</li>`).join('');
+    a.innerHTML = `<span class="state">Procjena</span><div class="kpi"><div><b>${fmt(s.public_mwh_yr)}</b><span>MWh/god · javni krovovi</span></div><div><b>${fmt(s.public_kwp)}</b><span>kWp · javni</span></div><div><b>${fmt(s.total_mwh_yr)}</b><span>MWh/god · svi krovovi</span></div></div>
+      <div class="legend" style="background:linear-gradient(90deg,#f6dfb8,#e08a1e,#8a3d00)"></div><div class="lg"><span>manje</span><span>kWh/god (javni objekti)</span><span>više</span></div>
+      <p><b>Prvih deset javnih krovova</b></p><ol>${rows}</ol><p class="src">Sjenka okolnih brda je uračunata; sjenka susjednih zgrada i drveća nije (faza 2). Javni objekti iz otvorenih podataka — potpuna lista tek iz registra Grada.</p>`;
+  } else if (q === 'heat') {
+    const s = S.sHeat; if (!s) return a.innerHTML = '<span class="state">Nedostupno</span> Sloj još nije izračunat.';
+    a.innerHTML = `<span class="state">Opažanje + procjena</span><div class="kpi"><div><b>${s.urban_lst_mean_c} °C</b><span>prosj. temp. površina u gradu (ljeto)</span></div><div><b>${s.urban_lst_p95_c} °C</b><span>najtoplijih 5%</span></div><div><b>${s.rural_lst_mean_c} °C</b><span>okolina</span></div></div>
+      <div class="legend" style="background:linear-gradient(90deg,#f5c6a5,#e0603a,#7a1414)"></div><div class="lg"><span>30 °C</span><span>temperatura površine</span><span>48 °C</span></div>
+      <p>Stubići su 10% gradskih ćelija gdje je površina najtoplija, zelenila najmanje, a izgrađenost najveća — prvi kandidati za drvoređe, hlad i vodu.</p><p class="src">Landsat 8/9, ljeta 2023–2025, oko 10 h ujutru. Temperatura površine nije temperatura vazduha; terenska mjerenja kalibrišu model u fazi 1.</p>`;
+  } else {
+    const s = S.sWalk; if (!s) return a.innerHTML = '<span class="state">Nedostupno</span> Sloj još nije izračunat.';
+    a.innerHTML = q === 'walk'
+      ? `<span class="state">Procjena</span><p>Debljina linije = broj najkraćih pješačkih puteva između atrakcija i od parkinga do atrakcija. Pokazuje gdje treba hlad, klupe, putokaze i bezbjedne prelaze.</p><div class="kpi"><div><b>${s.attractions.length}</b><span>atrakcija</span></div><div><b>${fmt(s.parking_features)}</b><span>mapiranih parkinga</span></div></div><p class="src">Ovo nije brojanje ljudi — brojači i podaci Turističke organizacije kalibrišu model u fazi 1.</p>`
+      : `<span class="state">Procjena</span><div class="kpi"><div><b>${s.centre_800m_floor_share_beyond_5min_of_parking ?? '–'}%</b><span>površine centra dalje od 5 min hoda do parkinga</span></div></div><div class="legend" style="background:linear-gradient(90deg,#f1e3e8,#c2728e,#5b1830)"></div><div class="lg"><span>0 min</span><span>5</span><span>12+ min</span></div><p class="src">Samo mapirana parkirališta; zone i popunjenost (Parking servis) dolaze u fazi 1.</p>`;
+  }
+}
+</script>
+</body>
+</html>
