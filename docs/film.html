@@ -1,0 +1,1197 @@
+<!doctype html>
+<html lang="bs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Grad koji zna · Digitalno Trebinje — film</title>
+<style>
+:root{
+  --bg:#0b0d10;--ink:#f2f0ea;--mute:#8d939c;--faint:#565c66;
+  --gold:#e8a33d;--gold-hi:#ffd27a;--heat:#ff5a3c;--walk:#5ea8ff;--green:#4cc38a;
+  --bad:#e5484d;--wait:#d6a243;--line:rgba(242,240,234,.14);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--bg);color:var(--ink);overflow:hidden;
+  font:15px/1.5 "Inter",ui-sans-serif,system-ui,"Segoe UI",sans-serif;
+  font-variant-numeric:tabular-nums}
+canvas#c{position:absolute;inset:0;width:100%;height:100%}
+/* captions */
+#cap{position:absolute;left:50%;bottom:17%;transform:translateX(-50%);width:min(860px,92vw);
+  text-align:center;pointer-events:none;opacity:0}
+/* zastor: natpis mora biti čitljiv i nad najgušćim crtežom, a crtež se ispod njega ne gubi */
+#scrim{position:absolute;left:0;right:0;bottom:0;height:46%;pointer-events:none;opacity:0;transition:opacity .5s;
+  background:linear-gradient(transparent,rgba(7,9,12,.42) 34%,rgba(7,9,12,.80) 76%)}
+#scrimTop{position:absolute;left:0;right:0;top:0;height:30%;pointer-events:none;opacity:0;transition:opacity .5s;
+  background:linear-gradient(rgba(7,9,12,.72),rgba(7,9,12,.30) 55%,transparent)}
+#cap .k{font-size:12px;letter-spacing:.34em;text-transform:uppercase;color:var(--mute);font-weight:600;margin-bottom:16px;text-shadow:0 2px 10px rgba(7,9,12,.92)}
+#cap .h{font-size:clamp(26px,4.4vw,46px);font-weight:800;letter-spacing:-.02em;line-height:1.12;text-wrap:balance}
+#cap .s{font-size:clamp(14px,1.6vw,18px);color:var(--mute);margin-top:12px;max-width:640px;margin-left:auto;margin-right:auto;text-wrap:balance}
+#cap .h em{font-style:normal;color:var(--gold-hi)}
+/* big live counter */
+#num{position:absolute;left:50%;top:12%;transform:translateX(-50%);text-align:center;pointer-events:none;opacity:0;
+  width:min(720px,90vw)}
+#num b{display:block;font-size:clamp(40px,7vw,84px);font-weight:800;letter-spacing:-.03em;line-height:1;
+  text-shadow:0 2px 24px rgba(7,9,12,.95),0 0 60px rgba(7,9,12,.8)}
+#num span{display:block;font-size:13px;letter-spacing:.22em;text-transform:uppercase;color:#b4bac3;margin-top:8px;font-weight:600;
+  max-width:min(560px,88vw);margin-left:auto;margin-right:auto;text-wrap:balance;
+  text-shadow:0 2px 12px rgba(7,9,12,.98),0 0 24px rgba(7,9,12,.9)}
+/* source line */
+#src{position:absolute;left:18px;bottom:62px;font-size:11.5px;color:#aeb4bd;max-width:46vw;pointer-events:none;opacity:0;transition:opacity .6s;
+  background:rgba(7,9,12,.72);border:1px solid rgba(255,255,255,.07);border-radius:8px;padding:5px 10px;backdrop-filter:blur(6px)}
+/* title card */
+/* kartica mora biti čitljiva nad gradom — zastor je dio kartice, ne ukras (kapija lepote 7) */
+#card{position:absolute;inset:0;display:grid;place-items:center;text-align:center;pointer-events:none;opacity:0;
+  background:radial-gradient(ellipse 70% 60% at 50% 48%,rgba(7,9,12,.94) 0%,rgba(7,9,12,.88) 42%,rgba(7,9,12,.55) 72%,rgba(7,9,12,0) 100%)}
+#card .t{font-size:clamp(38px,7vw,88px);font-weight:800;letter-spacing:-.02em}
+#card .u{color:#b9c0c9;margin-top:14px;font-size:clamp(13px,1.6vw,17px);letter-spacing:.08em}
+#card .g{margin-top:26px;font-size:12.5px;color:#9aa1ab;line-height:1.9;max-width:620px;padding:0 20px}
+/* odjavna špica — potpis istraživanja; redovi se otkrivaju vremenom filma, ne CSS animacijom
+   (snimanje jednog kadra mora da bude deterministično) */
+#credits{position:absolute;inset:0;display:grid;place-items:center;text-align:center;pointer-events:none;opacity:0;
+  background:radial-gradient(ellipse 78% 70% at 50% 50%,rgba(7,9,12,.97) 0%,rgba(7,9,12,.93) 46%,rgba(7,9,12,.6) 78%,rgba(7,9,12,.1) 100%)}
+#credits .w{max-width:min(720px,92vw);padding:0 22px}
+#credits .rw{opacity:0}
+#credits .pg{font-size:11.5px;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);font-weight:600;line-height:1.9}
+#credits hr{border:0;height:1px;margin:22px auto;width:74px;
+  background:linear-gradient(90deg,transparent,rgba(232,163,61,.75),transparent)}
+#credits .nm{font-size:clamp(19px,2.8vw,28px);font-weight:700;letter-spacing:-.01em;line-height:1.5}
+#credits .in{margin-top:12px;font-size:clamp(13px,1.5vw,15.5px);color:#b9c0c9;letter-spacing:.1em}
+#credits .pr{font-size:clamp(14px,1.7vw,17px);color:var(--ink);letter-spacing:.06em}
+#credits .ft{margin-top:12px;font-size:12.5px;line-height:1.85;color:#8d939c}
+#credits .ft a{color:#aeb4bd;text-decoration:none;border-bottom:1px solid rgba(174,180,189,.3)}
+/* controls */
+body.shot #bar,body.shot #hint{display:none}   /* čist kadar za izvlačenje slika */
+#bar{position:absolute;left:0;right:0;bottom:0;padding:14px 18px 16px;display:flex;align-items:center;gap:14px;
+  background:linear-gradient(transparent,rgba(5,6,8,.85) 55%);transition:opacity .4s;z-index:5}
+#bar.hid{opacity:0;pointer-events:none}
+button.ctl{background:none;border:0;color:var(--ink);cursor:pointer;padding:6px;border-radius:8px;display:grid;place-items:center}
+button.ctl:hover{background:rgba(255,255,255,.08)}
+button.ctl svg{display:block}
+#chapters{flex:1;display:flex;gap:4px;height:26px;align-items:center;cursor:pointer}
+.ch{flex:1;position:relative;height:4px;border-radius:2px;background:rgba(255,255,255,.14);overflow:hidden;transition:height .15s}
+.ch i{position:absolute;inset:0;width:0;background:var(--acc,#fff);border-radius:2px}
+.ch:hover{height:8px}
+.ch::after{content:attr(data-n);position:absolute;left:0;bottom:12px;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--mute);opacity:0;transition:opacity .15s;white-space:nowrap;font-style:normal}
+.ch:hover::after{opacity:1}
+#tm{font-size:12.5px;color:var(--mute);min-width:84px;text-align:right}
+#hint{position:absolute;right:16px;top:14px;font-size:11.5px;color:#aeb4bd;z-index:5;text-align:right;line-height:1.7;
+  background:rgba(7,9,12,.74);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:7px 12px;
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);transition:opacity .4s}
+#hint a{color:#e4e2dc;text-decoration:none;border-bottom:1px solid rgba(228,226,220,.3)}
+#hint a:hover{border-bottom-color:var(--gold-hi);color:var(--gold-hi)}
+#bar.hid ~ #hint,#hint.hid{opacity:0}
+/* info overlay */
+#info{position:absolute;inset:0;background:rgba(8,9,11,.93);z-index:9;display:none;place-items:center;overflow:auto}
+#info .w{max-width:680px;padding:46px 26px;font-size:14px;line-height:1.75;color:var(--mute)}
+#info h3{color:var(--ink);font-size:22px;margin-bottom:14px;letter-spacing:-.01em}
+#info b{color:var(--ink)}
+#info .x{position:absolute;top:18px;right:22px;font-size:26px;color:var(--mute);cursor:pointer;background:none;border:0}
+#err{position:absolute;inset:0;display:none;place-items:center;color:var(--mute);font-size:15px;text-align:center;padding:20px}
+/* portret / telefon: natpis, broj i izvor dijele malu visinu — svaki dobija svoj pojas,
+   a etikete na mapi ih izbjegavaju po izmjerenom pravougaoniku (vidi uiBands) */
+@media (max-width:760px){
+  #cap{bottom:22%;width:94vw}
+  #cap .k{font-size:10.5px;letter-spacing:.26em;margin-bottom:10px}
+  #cap .h{font-size:clamp(21px,5.6vw,30px)}
+  #cap .s{font-size:13.5px;margin-top:9px}
+  #num{top:7%;width:94vw}
+  #num b{font-size:clamp(34px,11vw,56px)}
+  #num span{font-size:10.5px;letter-spacing:.14em;max-width:88vw;line-height:1.55}
+  #src{left:50%;right:auto;transform:translateX(-50%);max-width:94vw;bottom:72px;
+       font-size:10.5px;text-align:center;padding:4px 9px}
+  #scrim{height:56%}
+  #scrimTop{height:34%}
+  #bar{padding:10px 12px 12px;gap:8px}
+  #tm{min-width:72px;font-size:11.5px}
+  #hint{display:none}
+  #credits .ft{font-size:11.5px}
+  .ch::after{display:none}
+}
+/* telefon položeno: naracija drži lijevu kolonu, crtež i podaci desnu */
+@media (max-height:540px) and (orientation:landscape){
+  #cap{left:3vw;transform:none;width:50vw;text-align:left;bottom:12%}
+  #cap .k{margin-bottom:9px;font-size:10.5px}
+  #cap .h{font-size:clamp(17px,2.7vw,25px);line-height:1.14}
+  #cap .s{font-size:12.5px;margin-top:7px;margin-left:0;max-width:50vw}
+  #num{left:3vw;transform:none;width:50vw;text-align:left;top:5%}
+  #num b{font-size:clamp(28px,4.6vw,44px)}
+  #num span{font-size:10px;letter-spacing:.12em;margin-left:0;max-width:50vw;line-height:1.5}
+  #src{left:3vw;right:auto;transform:none;max-width:50vw;text-align:left;bottom:50px;font-size:10px}
+  #scrim{height:62%;background:linear-gradient(to right,rgba(7,9,12,.86) 30%,rgba(7,9,12,.55) 52%,transparent 66%)}
+  #scrimTop{height:26%}
+  #hint{display:none}
+}
+@media (max-height:460px) and (orientation:portrait){#cap{bottom:19%}#num{top:5%}#src{bottom:64px}}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="scrimTop"></div>
+<div id="scrim"></div>
+<div id="num"><b></b><span></span></div>
+<div id="cap"><div class="k"></div><div class="h"></div><div class="s"></div></div>
+<div id="src"></div>
+<div id="card"></div>
+<div id="credits"><div class="w">
+  <div class="rw pg">Istraživanja u domenu digitalnih blizanaca</div>
+  <hr class="rw">
+  <div class="rw nm">doc. dr Semir Poturak</div>
+  <div class="rw nm">prof. dr Darinka Golubović Matić</div>
+  <div class="rw in">Univerzitet Union — Nikola Tesla, Beograd</div>
+  <hr class="rw">
+  <div class="rw pr">Digitalno Trebinje · pilot 2026</div>
+  <div class="rw ft">27 istraživačkih izvještaja u pet talasa · otvoreni podaci · javna dokumenta Grada Trebinja</div>
+  <div class="rw ft">Film je kod: nijedan kadar nije snimljen ni ilustrovan — svaki se izračuna iz podataka, u pregledniku, bez ijedne biblioteke.<br><a href="https://github.com/3esign/citytwin">github.com/3esign/citytwin</a></div>
+</div></div>
+<div id="hint"><a href="/">← mapa</a> · <a href="/vizija.html">vizija</a><br>razmaknica = pauza · ←/→ = poglavlja</div>
+<script src="kompozitor.js"></script>
+<div id="err">Podaci filma nisu dostupni.<br>Pokreni: <b>node faces/serve.js</b> pa otvori <b>localhost:4870/film.html</b></div>
+
+<div id="bar">
+  <button class="ctl" id="bPlay" aria-label="Pusti / pauziraj"></button>
+  <div id="chapters"></div>
+  <div id="tm">0:00 / 0:00</div>
+  <button class="ctl" id="bSnd" aria-label="Zvuk"></button>
+  <button class="ctl" id="bInfo" aria-label="Izvori">
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="7.4" stroke="currentColor" stroke-width="1.4"/><path d="M9 8v5M9 5.2v.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+  </button>
+  <button class="ctl" id="bFull" aria-label="Cijeli ekran">
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M2 6V2h4M12 2h4v4M16 12v4h-4M6 16H2v-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </button>
+</div>
+
+<div id="info"><button class="x" aria-label="Zatvori">×</button><div class="w">
+<h3>Šta je u ovom filmu istina, a šta procjena</h3>
+<p><b>Mjereno/snimljeno:</b> tlocrti 11.654 zgrade i ulice (OpenStreetMap, Overture Maps, Microsoft); sunčevo zračenje po zgradi (Global Solar Atlas, Svjetska banka/Solargis); temperatura površine (Landsat 8/9, ljeta 2023–2025, ~10 h ujutru — površina, ne vazduh); voda i teren (Copernicus DEM).</p>
+<p><b>Procijenjeno (parametri ispisani uz kadar):</b> proizvodnja panela (60% krova iskoristivo, modul 20%, PR 0,8); hlađenje krošnje (−8 do −12 °C površina, pregledi literature); tok posjetilaca (najkraći putevi između atrakcija i parkinga — model, ne brojanje ljudi).</p>
+<p><b>Iz javnih dokumenata Grada:</b> Budžet za građane 2026 (66,2 mil. KM; stavke sa str. 19); rebalans jul 2026: 78,85 mil.; Plan kapitalnih investicija 2026–2028: 934 mil.; elaborat Urbanističkog plana (nov. 2025): projekcija 26.544 → 28.682 stanovnika; 18 mjesnih zajednica (odluka Skupštine 2002); noćenja 2024: 230.710 (TO procjena stvarnih: 500–600 hiljada).</p>
+<p><b>Prikaz mogućnosti:</b> čiode građana u stavu „Glas" nisu stvarni prijedlozi — pokazuju kako javna knjiga radi. Lokacije budžetskih stavki su približne.</p>
+<p><b>Autori:</b> doc. dr Semir Poturak · prof. dr Darinka Golubović Matić — Univerzitet Union — Nikola Tesla, Beograd. Dio istraživanja u domenu digitalnih blizanaca.</p>
+<p>Kod i podaci: github.com/3esign/citytwin · nijedna zavisnost, sve se crta iz podataka u ovoj stranici.</p>
+</div></div>
+
+<script>
+'use strict';
+/* ============ GRAD KOJI ZNA — kodirani film, scenario docs/FILM_SCENARIO.md ============ */
+const $ = s => document.querySelector(s);
+const cv = $('#c'), cx2 = cv.getContext('2d');
+let W = 0, H = 0, DPR = 1;
+function resize(){ DPR = Math.min(devicePixelRatio || 1, 2); W = innerWidth; H = innerHeight;
+  cv.width = W * DPR; cv.height = H * DPR; }
+addEventListener('resize', resize); resize();
+
+const fmt = n => Math.round(n).toLocaleString('sr-Latn');
+const clamp = (v,a,b) => v < a ? a : v > b ? b : v;
+const lerp = (a,b,t) => a + (b - a) * t;
+const ss = t => { t = clamp(t,0,1); return t * t * (3 - 2 * t); };            // smoothstep
+const eo = t => 1 - Math.pow(1 - clamp(t,0,1), 3);                            // easeOutCubic
+const seg = (t,a,b) => clamp((t - a) / (b - a), 0, 1);                        // local 0..1
+function hexMix(h1,h2,t){ const p=h=>[parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)];
+  const a=p(h1),b=p(h2); return `rgb(${a.map((v,i)=>Math.round(lerp(v,b[i],t))).join(',')})`; }
+
+/* ---------- timeline ---------- */
+const SC = [
+  { id:'prolog', n:'Prolog', t0:0,   t1:22,  acc:'#9aa2ad' },
+  { id:'sunce',  n:'Sunce',  t0:22,  t1:62,  acc:'#e8a33d' },
+  { id:'vrelina',n:'Vrelina',t0:62,  t1:97,  acc:'#ff5a3c' },
+  { id:'koraci', n:'Koraci', t0:97,  t1:127, acc:'#5ea8ff' },
+  { id:'novac',  n:'Novac',  t0:127, t1:152, acc:'#c9d2dd' },
+  { id:'glas',   n:'Glas',   t0:152, t1:180, acc:'#4cc38a' },
+  { id:'sutra',  n:'Sutra',  t0:180, t1:205, acc:'#b48ead' },
+  { id:'kraj',   n:'Kraj',   t0:205, t1:221, acc:'#e8a33d' },
+  { id:'potpis', n:'Potpis', t0:221, t1:242, acc:'#ffd27a' },
+];
+const DUR = 242;
+const DURL = `${Math.floor(DUR/60)}:${String(Math.round(DUR%60)).padStart(2,'0')}`;
+
+/* ---------- captions (bosanski, latinica) ---------- */
+const CUES = [
+ [1,6,'DIGITALNO TREBINJE','Ovo nije crtež grada.',''],
+ [6.5,13,'DIGITALNO TREBINJE','Ovo su podaci.','Svaka zgrada, svaka ulica, svaki krov — iz otvorenih izvora, danas.'],
+ [14,21,'','Grad se može nacrtati iz onoga što o sebi već zna.',''],
+ [23,30,'SUNCE','Krovovi koji rade','Sunčevo zračenje izmjereno za svaku zgradu posebno — zlato je stvarni kWh.'],
+ [30.5,38,'SUNCE','1.265–1.561 kWh/m² godišnje.','Više sunca nego Minhen ili Beč.'],
+ [39,49,'SUNCE','Na krovovima već stoji elektrana.','Veća od one koju grad čeka.'],
+ [50,61,'SUNCE','A dovoljno je početi sa 5%.','16 javnih krovova može odmah: 4.187 MWh godišnje.'],
+ [63,70,'VRELINA','Ljeti je površina grada 5,3 °C toplija od okoline.','Landsat 8/9, ljeta 2023–2025 · temperatura površine, ne vazduha.'],
+ [71,79,'VRELINA','Model zna svaku od 1.306 najtoplijih tačaka.','Najtoplije, najizgrađenije, bez zelenila — poimence, sa koordinatama.'],
+ [80,95,'VRELINA','I zna gdje drvo najviše vrijedi.','Pod krošnjom je površina hladnija 8 do 12 °C.'],
+ [98,105,'KORACI','Kuda idu posjetioci','Svaki najkraći put između atrakcija i parkinga — model toka, ne brojanje ljudi.'],
+ [106,114,'KORACI','230.710 noćenja. Stvarno: pola miliona.','Registrovano 2024 naspram procjene Turističke organizacije.'],
+ [115,126,'KORACI','Strategija cilja tri puta više gostiju.','Model već zna kuda će proći — i gdje će ih dočekati hlad, ili beton.'],
+ [128,135,'NOVAC','Budžet na mapi','Stvarne stavke iz „Budžeta za građane 2026" · lokacije približne.'],
+ [136,150,'NOVAC','Svaka marka može biti tačka na mapi.','Sa iznosom i sudbinom. Budžet postoji — samo ga niko ne vidi ovako.'],
+ [153,160,'GLAS','Prijedlog dobija sudbinu','Čioda na mapi: trotoar, klupa, rasvjeta. Prikaz mogućnosti — ovako radi javna knjiga.'],
+ [161,170,'GLAS','Ništa ne nestaje u fioci.','Primljeno → razmotreno → usvojeno, ili odbijeno sa razlogom.'],
+ [171,179,'GLAS','Povjerenje se ne traži. Povjerenje se pokazuje.','18 mjesnih zajednica, jedan javni trag za svaki glas.'],
+ [181,189,'SUTRA','Grad koji zna šta jeste','Elaborat Urbanističkog plana, usvojen novembra 2025.'],
+ [190,204,'SUTRA','Plan je iskren: ne gradi se za rast stanovništva.','Zato se voda, parking, hlad i vrtići planiraju po krevetima i sezoni — ne samo po stanovnicima.'],
+ [206,212,'','Ništa u ovom filmu nije budućnost.','Svaki broj je izračunat iz javnih podataka — i svaki je procjena koja to kaže.'],
+];
+const SRC = [
+ [0,22,'Tlocrti: OpenStreetMap · Overture Maps · Microsoft (otvoreni podaci)'],
+ [22,62,'Global Solar Atlas © World Bank/Solargis · procjena: 60% krova, modul 20%, PR 0,8 · sjenka brda uračunata'],
+ [62,97,'Landsat 8/9 (USGS) · ćelije 30 m · hlađenje krošnje: pregledi literature · procjena'],
+ [97,127,'Mreža ulica OSM/Overture · model najkraćih puteva · kalibracija brojačima u fazi 1'],
+ [127,152,'Budžet za građane 2026, trebinje.rs.ba · budžet 66,2 mil. KM · lokacije stavki približne'],
+ [152,180,'Prikaz mogućnosti: čiode nisu stvarni prijedlozi · MZ: odluka Skupštine 2002, trebinje.rs.ba'],
+ [180,205,'Elaborat UP (Urbis centar, nov. 2025) · projekcija za obuhvat plana'],
+];
+
+/* ---------- camera ---------- */
+// keyframes [t, x, y, scale(px/m)] — world: metri od centra (18.344, 42.711), y raste ka jugu
+const CAM = [
+  [0,0,-150,.40],[14,0,-120,.50],[22,0,-80,.55],
+  [40,120,80,.62],[62,80,0,.58],
+  [80,350,-150,.62],[97,150,50,.66],
+  [112,80,120,.80],[127,60,80,.62],
+  // Novac: kamera se povuče da sve stavke stanu i DRŽI do kraja stava (ranije je kretala u 147 i
+  // izbacivala najveću stavku iz kadra — G: kamera ne smije da se pomjeri dok crtež stava još traje)
+  [134,-200,-60,.29],[150.5,-220,-60,.275],[153,0,0,.52],
+  [168,40,60,.60],[180,0,0,.50],
+  [205,0,-80,.46],[220,0,-60,.42],
+];
+function cam(t){
+  let i = 0; while (i < CAM.length - 2 && CAM[i + 1][0] <= t) i++;
+  const a = CAM[i], b = CAM[i + 1], k = ss(seg(t, a[0], b[0]));
+  return { x: lerp(a[1], b[1], k), y: lerp(a[2], b[2], k), s: lerp(a[3], b[3], k) };
+}
+const w2sX = (wx,c) => (wx - c.x) * c.s + W / 2;
+const w2sY = (wy,c) => (wy - c.y) * c.s + H / 2;
+
+/* ---------- data + bitmaps ---------- */
+let D = null;                      // film_data.json
+const BS = .8, EXT = 1800;         // bake: px/m, poluprostor u m
+const BW = Math.round(EXT * 2 * BS);
+let base, bctx, sun, sctx;         // offscreen gradovi
+let bOrder = [], sOrder = [], pfKwh = [];   // redoslijedi + prefiks suma kWh
+let bakeB = 0, bakeS = 0;          // koliko je ispečeno
+let parts = [];                    // čestice koridora
+let pins = [];                     // čiode scene Glas
+const bx = wx => (wx + EXT) * BS, by = wy => (wy + EXT) * BS;
+
+// Pojasevi koje zauzima HTML sloj (natpis, veliki broj, izvorna linija) — MJERE se iz DOM-a,
+// ne pogađaju procentima. Na portretu natpis i broj zauzmu dvostruko veću visinu nego na stolu,
+// pa su fiksni procenti puštali etikete tačno u tekst (G: telefon, 01.10.2026).
+let UIB = [], uiStamp = -1, frameN = 0;
+function uiBands(){
+  if (uiStamp === frameN) return UIB;
+  uiStamp = frameN; UIB = [];
+  const add = (sel, pad) => {
+    const e = $(sel); if (!e || (+e.style.opacity || 0) < .25) return;
+    const r = e.getBoundingClientRect(); if (!r.width || !r.height) return;
+    UIB.push({ x: r.left - pad, y: r.top - pad, w: r.width + pad * 2, h: r.height + pad * 2 });
+  };
+  add('#cap', 16); add('#num', 14); add('#src', 10);
+  return UIB;
+}
+function inCap(X, Y){
+  for (const b of uiBands())
+    if (X > b.x && X < b.x + b.w && Y > b.y && Y < b.y + b.h) return true;
+  return false;
+}
+/* ---------- jedan organ za etikete ----------
+   Svaka riječ na platnu prolazi ovuda: sama se uvuče u kadar i sama se skloni sa tuđeg teksta.
+   Zauzeto po kadru = HTML pojasevi (natpis, broj, izvor) + sve što je već ispisano + ploče.
+   Ranije je svaki stav imao svoju improvizaciju i svaki je na telefonu padao drukčije. */
+let TAKEN = [], takenN = -1;
+function taken(){ if (takenN !== frameN){ takenN = frameN; TAKEN = uiBands().slice(); } return TAKEN; }
+function reserve(b){ taken().push(b); return b; }
+function hits(b){ for (const t of taken())
+  if (b.x < t.x + t.w && b.x + b.w > t.x && b.y < t.y + t.h && b.y + b.h > t.y) return true; return false; }
+function tbox(txt, x, y){
+  const m = cx2.measureText(txt), al = cx2.textAlign;
+  const asc = m.actualBoundingBoxAscent || 10, des = m.actualBoundingBoxDescent || 3;
+  const lx = al === 'center' ? x - m.width / 2 : (al === 'right' || al === 'end') ? x - m.width : x;
+  return { x: lx, y: y - asc, w: m.width, h: asc + des, asc, des, al };
+}
+// vrati y na koji je etiketa legla, ili null kad mjesta nema (tada ostaje samo tačka)
+function label(txt, x, y, o){
+  o = o || {};
+  const b = tbox(txt, x, y), m = o.margin == null ? 10 : o.margin, bot = o.bottom == null ? 54 : o.bottom;
+  const lx = clamp(b.x, m, Math.max(m, W - m - b.w));
+  const lo = b.asc + m, hi = Math.max(lo, H - b.des - bot);
+  let ly = clamp(y, lo, hi);
+  const box = () => ({ x: lx - 4, y: ly - b.asc - 3, w: b.w + 8, h: b.h + 6 });
+  const step = (o.step || b.h + 9) * (o.down ? 1 : -1);
+  let k = 0, bb = box();
+  while (hits(bb) && k < (o.tries == null ? 8 : o.tries)){
+    k++; ly = clamp(y + step * k, lo, hi); bb = box();
+    if (hits(bb)){ ly = clamp(y - step * k, lo, hi); bb = box(); }
+  }
+  if (hits(bb)) return null;
+  reserve(bb);
+  const px = b.al === 'center' ? lx + b.w / 2 : (b.al === 'right' || b.al === 'end') ? lx + b.w : lx;
+  cx2.fillText(txt, px, ly);
+  return ly;
+}
+// dvoredna etiketa (iznos + ime) traži mjesto kao cjelina — red se ne odvaja od reda
+function labelBlock(lines, x, y, o){
+  o = o || {};
+  const mm = lines.map(l => { cx2.font = l.f; const t = cx2.measureText(l.s);
+    return { w: t.width, asc: t.actualBoundingBoxAscent || 10, des: t.actualBoundingBoxDescent || 3 }; });
+  const wMax = Math.max(...mm.map(v => v.w)), gap = o.gap == null ? 16 : o.gap, m = 10;
+  const bot = o.bottom == null ? 54 : o.bottom, hT = mm[0].asc + gap * (lines.length - 1) + mm[mm.length - 1].des;
+  const lx = clamp(x - wMax / 2, m, Math.max(m, W - m - wMax)) + wMax / 2;
+  const lo = mm[0].asc + m, hi = Math.max(lo, H - bot - (hT - mm[0].asc));
+  let ly = clamp(y, lo, hi);
+  const box = () => ({ x: lx - wMax / 2 - 5, y: ly - mm[0].asc - 4, w: wMax + 10, h: hT + 8 });
+  const step = o.step || hT + 12;
+  let k = 0, bb = box();
+  while (hits(bb) && k < 10){
+    k++; ly = clamp(y - step * k, lo, hi); bb = box();
+    if (hits(bb)){ ly = clamp(y + step * k, lo, hi); bb = box(); }
+  }
+  if (hits(bb)) return null;
+  reserve(bb);
+  const al = cx2.textAlign; cx2.textAlign = 'center';
+  lines.forEach((l, i) => { cx2.font = l.f; cx2.fillStyle = l.c; cx2.fillText(l.s, lx, ly + i * gap); });
+  cx2.textAlign = al;
+  return ly;
+}
+function wrapLines(txt, maxW){
+  const ws = txt.split(' '), out = []; let cur = '';
+  for (const w of ws){ const t = cur ? cur + ' ' + w : w;
+    if (cur && cx2.measureText(t).width > maxW){ out.push(cur); cur = w; } else cur = t; }
+  if (cur) out.push(cur); return out;
+}
+function ell(txt, maxW){
+  if (cx2.measureText(txt).width <= maxW) return txt;
+  let t = txt; while (t.length > 1 && cx2.measureText(t + '…').width > maxW) t = t.slice(0, -1);
+  return t + '…';
+}
+function hash(i){ i = (i ^ 61) ^ (i >>> 16); i = i + (i << 3); i ^= i >>> 4; i *= 0x27d4eb2d; i ^= i >>> 15; return (i >>> 0) / 4294967296; }
+
+function prep(){
+  base = document.createElement('canvas'); base.width = base.height = BW;
+  sun  = document.createElement('canvas'); sun.width = sun.height = BW;
+  bctx = base.getContext('2d'); sctx = sun.getContext('2d');
+  bakeWater();
+  D.heat.sort((a, b) => b[3] - a[3]);   // drveće prvo u ćelije najvišeg prioriteta
+  // redoslijed rađanja: radijalno od centra uz šum (kiša gradnje)
+  bOrder = D.b.map((b,i) => i).sort((i,j) =>
+    (Math.hypot(D.b[i][0], D.b[i][1]) + hash(i) * 900) - (Math.hypot(D.b[j][0], D.b[j][1]) + hash(j) * 900));
+  // sunce: najveći kWh prvi
+  sOrder = D.b.map((b,i) => i).filter(i => D.b[i][3] > 0).sort((i,j) => D.b[j][3] - D.b[i][3]);
+  let s = 0; pfKwh = sOrder.map(i => (s += D.b[i][3]));
+  // čestice koridora (težina = broj puteva)
+  const bag = [];
+  D.corridors.forEach((c,ci) => { const n = Math.ceil(Math.sqrt(c.w) * 1.2); for (let k = 0; k < n; k++) bag.push(ci); });
+  for (let k = 0; k < 520; k++){
+    const ci = bag[(hash(k * 7 + 1) * bag.length) | 0], c = D.corridors[ci];
+    let len = 0; const cum = [0];
+    for (let i = 2; i < c.p.length; i += 2){ len += Math.hypot(c.p[i] - c.p[i-2], c.p[i+1] - c.p[i-1]); cum.push(len); }
+    parts.push({ c, cum, len, off: hash(k * 13 + 5), sp: 14 + hash(k * 3 + 2) * 10 });
+  }
+  // čiode: deterministički, zgrade blizu centra
+  const cand = D.b.map((b,i) => i).filter(i => Math.hypot(D.b[i][0], D.b[i][1]) < 950);
+  const L = ['trotoar','klupa','rasvjeta','pješački prelaz','igralište','kontejner','drvored','ležeći policajac'];
+  const FATES = [['usvojeno',0],['usvojeno',0],['razmotreno',1],['odbijeno · nema sredstava 2026',2],['usvojeno',0],['razmotreno',1],['odbijeno · čeka regulacioni plan',2],['usvojeno',0]];
+  for (let k = 0; k < 16; k++){
+    const i = cand[(hash(k * 31 + 9) * cand.length) | 0];
+    pins.push({ x: D.b[i][0], y: D.b[i][1], l: L[k % L.length], f: FATES[k % FATES.length], ord: hash(k * 17 + 3) });
+  }
+  pins.sort((a,b) => a.ord - b.ord);
+}
+function drawPoly(ctx2, b, ox, oy, scale){
+  ctx2.beginPath();
+  for (let i = 5; i < b.length; i += 2){
+    const X = (b[0] + b[i] - ox) * scale, Y = (b[1] + b[i + 1] - oy) * scale;
+    i === 5 ? ctx2.moveTo(X, Y) : ctx2.lineTo(X, Y);
+  }
+  ctx2.closePath(); ctx2.fill();
+}
+function bakeWater(){
+  bctx.fillStyle = '#152836';
+  for (const r of D.water){ bctx.beginPath();
+    for (let i = 0; i < r.length; i += 2) i ? bctx.lineTo(bx(r[i]), by(r[i+1])) : bctx.moveTo(bx(r[0]), by(r[1]));
+    bctx.closePath(); bctx.fill(); }
+  bctx.strokeStyle = 'rgba(94,168,255,.14)'; bctx.lineWidth = 1;
+  for (const c of D.corridors){ bctx.beginPath();
+    for (let i = 0; i < c.p.length; i += 2) i ? bctx.lineTo(bx(c.p[i]), by(c.p[i+1])) : bctx.moveTo(bx(c.p[0]), by(c.p[1]));
+    bctx.stroke(); }
+}
+function bakeBaseTo(n){
+  if (n < bakeB){ bctx.clearRect(0, 0, BW, BW); bakeWater(); bakeB = 0; }
+  for (; bakeB < n; bakeB++){
+    const b = D.b[bOrder[bakeB]], v = 22 + hash(bOrder[bakeB]) * 9;
+    bctx.fillStyle = `hsl(214,9%,${v}%)`;
+    drawPoly(bctx, b, -EXT, -EXT, BS);
+  }
+}
+const kwhCol = k => { const t = clamp(Math.log10(Math.max(k, 800)) / 5.6 - .52, 0, 1); return hexMix('#6a4a16', '#ffd27a', t); };
+function bakeSunTo(n){
+  if (n < bakeS){ sctx.clearRect(0, 0, BW, BW); bakeS = 0; }
+  for (; bakeS < n; bakeS++){
+    const b = D.b[sOrder[bakeS]];
+    sctx.fillStyle = kwhCol(b[3]);
+    drawPoly(sctx, b, -EXT, -EXT, BS);
+  }
+}
+function blit(ctx2, bmp, c, alpha){
+  if (alpha <= 0) return;
+  ctx2.save(); ctx2.globalAlpha = alpha; ctx2.imageSmoothingQuality = 'high';
+  const k = c.s / BS;
+  ctx2.drawImage(bmp, w2sX(-EXT, c), w2sY(-EXT, c), BW * k, BW * k);
+  ctx2.restore();
+}
+
+/* ---------- scena: pomoćni crteži (screen-space, dataviz pravila) ---------- */
+function kickText(ctx2){ ctx2.textBaseline = 'alphabetic'; }
+function plate(ctx2, X, Y, Wd, H2, a){        // tiha ploča: panel ne stoji na najgušćem crtežu
+  if (a <= 0) return;
+  ctx2.save(); ctx2.globalAlpha = a * .88;
+  ctx2.fillStyle = 'rgba(10,12,16,.82)'; rr(ctx2, X - 18, Y - 30, Wd + 36, H2, 14); ctx2.fill();
+  ctx2.strokeStyle = 'rgba(242,240,234,.08)'; ctx2.lineWidth = 1;
+  rr(ctx2, X - 18, Y - 30, Wd + 36, H2, 14); ctx2.stroke(); ctx2.restore();
+}
+function barCompare(ctx2, X, Y, Wd, a){      // 195 GWh naspram 148 GWh — jedna osa, direktne etikete
+  plate(ctx2, X, Y, Wd, 168, a);
+  const rows = [['svi krovovi grada', 195.4, '#e8a33d', '195 GWh/god · procjena'],
+                ['planirana SE Trebinje 1', 147.7, '#78828e', '148 GWh/god · po ERS-u']];
+  const max = 210, bh = 26, gap = 40;
+  ctx2.save(); ctx2.globalAlpha = a; ctx2.font = '600 13px Inter,sans-serif';
+  rows.forEach((r, i) => {
+    const y = Y + i * (bh + gap), w = Wd * (r[1] / max) * a;
+    ctx2.fillStyle = 'rgba(242,240,234,.9)'; ctx2.fillText(r[0], X, y - 8);
+    ctx2.fillStyle = 'rgba(255,255,255,.08)'; rr(ctx2, X, y, Wd, bh, 5); ctx2.fill();
+    ctx2.fillStyle = r[2]; rr(ctx2, X, y, Math.max(w, 8), bh, 5); ctx2.fill();
+    ctx2.fillStyle = 'rgba(242,240,234,.75)'; ctx2.font = '500 12.5px Inter,sans-serif';
+    ctx2.fillText(r[3], X + 8, y + bh + 16); ctx2.font = '600 13px Inter,sans-serif';
+  });
+  ctx2.restore();
+}
+function budgetScale(ctx2, X, Y, Wd, a){    // godišnji budžet naspram plana 2026–2028 — jedna osa
+  if (a <= 0) return;
+  plate(ctx2, X, Y, Wd + 90, 164, a);
+  const rows = [['budžet grada 2026', 66.2, '#e8d9b8', 'od toga kapitalno 14,5 mil.'],
+                ['plan kapitalnih investicija 2026–2028', 934, '#7a6f58', '14× godišnji budžet · samo kongresni centar 260 mil.']];
+  const max = 934, bh = 22, gap = 44;
+  ctx2.save(); ctx2.globalAlpha = a;
+  rows.forEach((r, i) => {
+    const y = Y + i * (bh + gap), w = Math.max(Wd * (r[1] / max) * a, 6);
+    ctx2.font = '600 13px Inter,sans-serif'; ctx2.fillStyle = 'rgba(242,240,234,.9)';
+    ctx2.fillText(r[0], X, y - 8);
+    ctx2.fillStyle = 'rgba(255,255,255,.07)'; rr(ctx2, X, y, Wd, bh, 4); ctx2.fill();
+    ctx2.fillStyle = r[2]; rr(ctx2, X, y, w, bh, 4); ctx2.fill();
+    ctx2.font = '700 13px Inter,sans-serif'; ctx2.fillStyle = '#f2f0ea';
+    ctx2.fillText(r[1].toLocaleString('sr-Latn') + ' mil. KM', X + w + 10, y + 16);
+    ctx2.font = '500 11.5px Inter,sans-serif'; ctx2.fillStyle = 'rgba(242,240,234,.55)';
+    ctx2.fillText(r[3], X, y + bh + 17);
+  });
+  ctx2.restore();
+}
+function rr(c2, x, y, w, h, r){ c2.beginPath(); c2.moveTo(x + r, y); c2.arcTo(x + w, y, x + w, y + h, r);
+  c2.arcTo(x + w, y + h, x, y + h, r); c2.arcTo(x, y + h, x, y, r); c2.arcTo(x, y, x + w, y, r); c2.closePath(); }
+function thermo(ctx2, X, Y, Wd, a){          // grad naspram okoline — direktne etikete
+  plate(ctx2, X, Y, Wd + 56, 148, a);
+  const rows = [['površina grada ljeti', 38.7, '#ff5a3c'], ['okolina', 33.4, '#78828e']];
+  ctx2.save(); ctx2.globalAlpha = a; ctx2.font = '600 13px Inter,sans-serif';
+  rows.forEach((r, i) => {
+    const y = Y + i * 56, w = Wd * ((r[1] - 28) / 16) * a;
+    ctx2.fillStyle = 'rgba(242,240,234,.9)'; ctx2.fillText(r[0], X, y - 8);
+    ctx2.fillStyle = 'rgba(255,255,255,.08)'; rr(ctx2, X, y, Wd, 22, 5); ctx2.fill();
+    ctx2.fillStyle = r[1] > 35 ? r[2] : r[2]; rr(ctx2, X, y, Math.max(w, 8), 22, 5); ctx2.fill();
+    ctx2.fillStyle = '#f2f0ea'; ctx2.fillText(r[1].toLocaleString('sr-Latn') + ' °C', X + Math.max(w, 8) + 10, y + 16);
+  });
+  ctx2.restore();
+}
+function lineChart(ctx2, X, Y, Wd, Hd, pts, col, lab, a){
+  ctx2.save(); ctx2.globalAlpha = a;
+  const xs = pts.map(p => p[0]), ys = pts.map(p => p[1]);
+  const x0 = Math.min(...xs), x1 = Math.max(...xs);
+  const y0 = Math.min(...ys) * .96, y1 = Math.max(...ys) * 1.02;
+  ctx2.strokeStyle = 'rgba(255,255,255,.1)'; ctx2.lineWidth = 1;
+  ctx2.beginPath(); ctx2.moveTo(X, Y + Hd); ctx2.lineTo(X + Wd, Y + Hd); ctx2.stroke();
+  ctx2.strokeStyle = col; ctx2.lineWidth = 2; ctx2.lineJoin = 'round'; ctx2.beginPath();
+  pts.forEach((p, i) => { const sx = X + Wd * (p[0] - x0) / (x1 - x0), sy = Y + Hd * (1 - (p[1] - y0) / (y1 - y0));
+    i ? ctx2.lineTo(sx, sy) : ctx2.moveTo(sx, sy); });
+  ctx2.stroke();
+  const lp = pts[pts.length - 1];
+  const lx = X + Wd, ly = Y + Hd * (1 - (lp[1] - y0) / (y1 - y0));
+  ctx2.fillStyle = col; ctx2.beginPath(); ctx2.arc(lx, ly, 4, 0, 7); ctx2.fill();
+  ctx2.fillStyle = 'rgba(242,240,234,.92)'; ctx2.font = '700 15px Inter,sans-serif';
+  // vrijednost stoji iznad tačke, a ispod nje kad bi gore udarila u natpis krive
+  const vy = (ly - 12 - 13 < Y + 2) ? ly + 20 : ly - 12;
+  ctx2.fillText(fmt(lp[1]), lx - ctx2.measureText(fmt(lp[1])).width, vy);
+  ctx2.fillStyle = 'rgba(141,147,156,.9)'; ctx2.font = '600 11.5px Inter,sans-serif';
+  const lw2 = ctx2.measureText(lab).width;
+  ctx2.fillText(lab, Math.max(10, Math.min(X, W - 10 - lw2)), Y - 8);
+  ctx2.fillStyle = 'rgba(141,147,156,.75)'; ctx2.font = '500 11px Inter,sans-serif';
+  ctx2.fillText(x0, X, Y + Hd + 16); ctx2.fillText(x1, X + Wd - 28, Y + Hd + 16);
+  ctx2.fillText(fmt(pts[0][1]), X + 4, Y + Hd * (1 - (pts[0][1] - y0) / (y1 - y0)) - 8);
+  ctx2.restore();
+}
+
+/* budžetske stavke — Budžet za građane 2026, str. 19 · lokacije približne */
+const MONEY = [
+  { n:'Novo Trebinje',        m:3.8, x:-2200, y:500 },
+  { n:'Zgrada Radio Trebinja',m:1.1, x:-60,  y:-40 },
+  { n:'Vrtić u Tinima',       m:0.8, x:900,  y:-650 },
+  { n:'Poslovna zona',        m:0.8, x:-1500,y:-1500 },
+  { n:'Gradski putevi',       m:0.7, x:450,  y:450 },
+  { n:'Park i trg u Gorici',  m:0.5, x:-1050,y:-700 },
+  { n:'Aerodrom (učešće)',    m:0.2, x:-6400,y:-900 },   // zapadno od grada (Hum/Mionići) — van kadra, ide na rub
+];
+const MZ = 'Centar · Hrupjela · Gorica · Donje Police · Gornje Police · Tini · Ložiona · Zasad · Pridvorci · Petrovo polje · Zupci · Lastva · Ljubomir · Mosko · Podbrđe · Veličani · Poljice Popovo · Šuma · Površ';
+
+/* ---------- glavni crtež po sceni ---------- */
+// Na niskom položenom kadru tekst ima lijevu polovinu, a crtež desnu kolonu [COLX, COLX+COLW].
+// Na svakom drugom kadru kolona je cijeli ekran.
+let NIZAK = false, COLX = 0, COLW = 0;
+function draw(t){
+  frameN++;
+  NIZAK = H < 540 && W > H;
+  COLX = NIZAK ? W * .52 : 0;
+  COLW = W - COLX - 12;
+  const c = cam(t);
+  cx2.setTransform(DPR, 0, 0, DPR, 0, 0);
+  cx2.fillStyle = '#0b0d10'; cx2.fillRect(0, 0, W, H);
+  const N = D.b.length;
+  let num = '', numLab = '', numCol = '';
+
+  /* — osnovni grad — */
+  if (t < 22){                                   // PROLOG: grad se crta
+    const k = eo(seg(t, 1.5, 17));
+    bakeBaseTo(Math.round(k * N));
+    blit(cx2, base, c, 1);
+    if (t > 2 && t < 20){ num = fmt(bakeB); numLab = 'zgrada · iz otvorenih podataka'; }
+  } else {
+    bakeBaseTo(N);
+    blit(cx2, base, c, t > 205 ? .9 : t >= 180 ? lerp(1, .14, ss(seg(t, 181, 186))) : 1);
+  }
+
+  /* — SUNCE — */
+  if (t >= 22 && t < 62){
+    const reveal = eo(seg(t, 23, 40));
+    bakeSunTo(Math.round(reveal * sOrder.length));
+    const dim = t > 50 ? lerp(1, .22, ss(seg(t, 50, 53))) : 1;   // 5%: ostali utihnu
+    blit(cx2, sun, c, dim);
+    if (t > 24 && t < 49){ const mwh = (pfKwh[Math.max(bakeS - 1, 0)] || 0) / 1000;
+      num = fmt(mwh); numLab = 'MWh godišnje · svi krovovi · procjena'; numCol = '#ffd27a'; }
+    if (t >= 39 && t < 50) barCompare(cx2, W * .58, H * .33, Math.min(W * .32, 420), ss(seg(t, 39.5, 42)) * (1 - ss(seg(t, 48.5, 50))));
+    if (t >= 50){                                 // top 5% svijetli
+      const top = sOrder.slice(0, Math.round(sOrder.length * .05));
+      cx2.save(); cx2.fillStyle = '#ffd27a'; cx2.shadowColor = '#e8a33d'; cx2.shadowBlur = 8;
+      for (const i of top){ const b = D.b[i];
+        drawPoly(cx2, b, c.x - W / 2 / c.s, c.y - H / 2 / c.s, c.s); }
+      cx2.restore();
+      num = '9.769'; numLab = 'MWh/god · 2.400 domaćinstava · 6.350 t CO₂ manje — sa samo 5% krovova'; numCol = '#ffd27a';
+    }
+  }
+  if (t >= 62 && t < 64) blit(cx2, sun, c, 1 - ss(seg(t, 62, 64)));
+
+  /* — VRELINA — */
+  if (t >= 62 && t < 97){
+    const a = ss(seg(t, 62.5, 66));
+    const treeT = eo(seg(t, 81, 94));
+    const trees = Math.round(treeT * 10000);
+    const covered = trees * 25 / 900;              // ćelija potpuno pod krošnjom
+    cx2.save();
+    for (let i = 0; i < D.heat.length; i++){
+      const hc = D.heat[i], lst = hc[2] / 10;
+      const sx = w2sX(hc[0], c), sy = w2sY(hc[1], c);
+      if (sx < -40 || sx > W + 40 || sy < -40 || sy > H + 40) continue;
+      const cool = clamp(covered - i, 0, 1);       // ćelije se gase po prioritetu
+      const pulse = .55 + .25 * Math.sin(t * 2.6 + i * .7);
+      const col = cool ? hexMix('#ff5a3c', '#2f8f5f', cool) : hexMix('#5a2017', '#ff5a3c', clamp((lst - 34) / 8, 0, 1));
+      cx2.globalAlpha = a * (cool ? .8 : pulse);
+      const r = 15 * c.s;
+      cx2.fillStyle = col; cx2.fillRect(sx - r, sy - r, r * 2, r * 2);
+      if (cool > 0 && cool < 1.2){                 // krošnje
+        cx2.globalAlpha = a * .85 * cool; cx2.fillStyle = '#3fae75';
+        cx2.beginPath(); cx2.arc(sx - r * .4, sy, r * .8 * cool, 0, 7); cx2.arc(sx + r * .5, sy - r * .4, r * .6 * cool, 0, 7); cx2.fill();
+      }
+    }
+    cx2.restore();
+    if (t >= 63.5 && t < 71) thermo(cx2, W * .58, H * .33, Math.min(W * .3, 400), ss(seg(t, 64, 66.5)) * (1 - ss(seg(t, 69.5, 71))));
+    if (t >= 72 && t < 80.5){ num = '1.306'; numLab = 'najtoplijih ćelija po 900 m² · Landsat, procjena'; numCol = '#ff7a5c'; }
+    if (t >= 81){ num = fmt(trees); numLab = `novih stabala → ${fmt(Math.min(covered, 1306))} ćelija pod krošnjom`; numCol = '#4cc38a'; }
+  }
+
+  /* — KORACI — */
+  if (t >= 97 && t < 127){
+    const a = ss(seg(t, 97.5, 100));
+    const growth = 1 + 2 * seg(t, 115, 125);       // 1 → 3 (strategija: tri puta više gostiju do 2030)
+    cx2.save();
+    cx2.lineCap = 'round';
+    for (const cr of D.corridors){                 // koridori: debljina = broj puteva
+      const lw = Math.min(1 + Math.log2(1 + cr.w) * 1.1 * growth, 14) * c.s * 1.2;
+      cx2.strokeStyle = 'rgba(94,168,255,.30)'; cx2.lineWidth = lw; cx2.globalAlpha = a * .8;
+      cx2.beginPath();
+      for (let i = 0; i < cr.p.length; i += 2){ const X = w2sX(cr.p[i], c), Y = w2sY(cr.p[i+1], c);
+        i ? cx2.lineTo(X, Y) : cx2.moveTo(X, Y); }
+      cx2.stroke();
+    }
+    for (const p of parts){                        // čestice teku
+      const d = ((t * p.sp * (1 + (growth - 1) * .35)) + p.off * p.len) % p.len;
+      let i = 0; while (i < p.cum.length - 1 && p.cum[i + 1] < d) i++;
+      const k = (d - p.cum[i]) / (p.cum[i + 1] - p.cum[i] || 1);
+      const X = w2sX(lerp(p.c.p[i * 2], p.c.p[i * 2 + 2], k), c);
+      const Y = w2sY(lerp(p.c.p[i * 2 + 1], p.c.p[i * 2 + 3], k), c);
+      cx2.globalAlpha = a; cx2.fillStyle = '#bcd9ff';
+      cx2.beginPath(); cx2.arc(X, Y, 1.6, 0, 7); cx2.fill();
+    }
+    cx2.globalAlpha = a;
+    for (const at of D.attractions){
+      const X = w2sX(at.x, c), Y = w2sY(at.y, c);
+      if (X < -6 || X > W + 6 || Y < -6 || Y > H + 6) continue;   // tačka van kadra nema etiketu
+      cx2.fillStyle = '#f2f0ea'; cx2.beginPath(); cx2.arc(X, Y, 4, 0, 7); cx2.fill();
+      cx2.font = '600 12px Inter,sans-serif'; cx2.fillStyle = 'rgba(242,240,234,.85)';
+      label(at.n, X + 8, Y - 6, { step: 17 });
+    }
+    cx2.globalAlpha = a * .8; cx2.fillStyle = '#9b6b85';
+    for (const pk of D.parking){ const X = w2sX(pk[0], c), Y = w2sY(pk[1], c);
+      cx2.fillRect(X - 2, Y - 2, 4, 4); }
+    cx2.restore();
+    if (t >= 106 && t < 114.5){ num = '230.710'; numLab = 'registrovanih noćenja 2024 · stvarno: 500–600 hiljada (procjena TO)'; numCol = '#5ea8ff'; }
+    if (t >= 115){ num = '+' + Math.round((growth - 1) * 100) + '%'; numLab = 'posjetilaca → parking pritisak raste brže (×1,4)'; numCol = '#5ea8ff'; }
+  }
+
+  /* — NOVAC — */
+  if (t >= 127 && t < 152){
+    const a = ss(seg(t, 127.5, 130));
+    const scA = t >= 138.5 ? ss(seg(t, 139, 141.5)) * (1 - ss(seg(t, 150.5, 152))) : 0;
+    // pravougaonik razmjere (lijevo) — mjehuri i etikete ga zaobilaze
+    const pw = NIZAK ? Math.min(COLW - 120, 230) : Math.min(Math.max(W * .30, 150), 400);
+    const pnl = { x: NIZAK ? COLX + 8 : W * .045, y: NIZAK ? 34 : H * .34, w: pw + 110, h: 150 };
+    // ploča se prijavi kao zauzeta prije nego što ijedan mjehur traži mjesto za etiketu
+    if (scA > .15) reserve({ x: pnl.x - 10, y: pnl.y - 32, w: pnl.w + 20, h: 196 });
+    cx2.save(); cx2.textAlign = 'center';
+    function money(X, Y, r, k, it, edge){
+      cx2.globalAlpha = a * .30 * k; cx2.fillStyle = '#e8d9b8';
+      cx2.shadowColor = 'rgba(232,217,184,.55)'; cx2.shadowBlur = 26 * k;
+      cx2.beginPath(); cx2.arc(X, Y, r, 0, 7); cx2.fill(); cx2.shadowBlur = 0;
+      cx2.globalAlpha = a * .95 * k; cx2.strokeStyle = '#f0e2c4'; cx2.lineWidth = 1.6;
+      cx2.beginPath(); cx2.arc(X, Y, r, 0, 7); cx2.stroke();
+      if (k < .7) return;
+      cx2.globalAlpha = a;
+      const ly = labelBlock([
+        { s: it.m.toLocaleString('sr-Latn') + ' mil. KM', f: '700 14px Inter,sans-serif', c: '#f6efdf' },
+        { s: it.n + (edge ? ' →' : ''), f: '500 12px Inter,sans-serif', c: 'rgba(242,240,234,.72)' }
+      ], X, Y - r - 20, { gap: 16 });
+      // etiketa odvojena od mjehura dobija tanku nit — da se zna čija je
+      if (ly !== null && ly < Y - r - 34){
+        cx2.globalAlpha = a * .38; cx2.strokeStyle = '#f0e2c4'; cx2.lineWidth = 1;
+        cx2.beginPath(); cx2.moveTo(X, ly + 6); cx2.lineTo(X, Y - r - 4); cx2.stroke();
+      }
+    }
+    MONEY.forEach((it, i) => {
+      const k = eo(seg(t, 129 + i * 1.5, 131.5 + i * 1.5));
+      if (k <= 0) return;
+      const X = w2sX(it.x, c), Y = w2sY(it.y, c), r = Math.sqrt(it.m) * 26 * k;
+      const out = X < r + 54 || X > W - r - 54 || Y < r + 54 || Y > H - r - 54;
+      if (!out) return money(X, Y, r, k, it, false);
+      // van kadra: oznaka na rubu u pravcu stavke — novac koji ide izvan grada se i dalje vidi
+      const eX = clamp(X, r + 54, W - r - 54), eY = clamp(Y, r + 54, H - r - 54);
+      money(eX, eY, r, k, it, true);
+      cx2.globalAlpha = a * .5 * k; cx2.strokeStyle = '#f0e2c4'; cx2.lineWidth = 1.4;
+      const dx = Math.sign(X - eX), dy = Math.sign(Y - eY);
+      cx2.beginPath(); cx2.moveTo(eX + dx * (r + 6), eY + dy * (r + 6));
+      cx2.lineTo(eX + dx * (r + 22), eY + dy * (r + 22)); cx2.stroke();
+    });
+    cx2.restore();
+    // razmjera: godišnji budžet naspram plana kapitalnih investicija 2026–2028 (ona nosi broj, ne veliki brojač)
+    if (scA > 0) budgetScale(cx2, pnl.x, pnl.y, pw, scA);
+  }
+
+  /* — GLAS — */
+  if (t >= 152 && t < 180){
+    const a = ss(seg(t, 152.5, 155));
+    cx2.save();
+    const bkW = NIZAK ? Math.min(COLW, 330) : Math.min(352, W - 28), bookX = W - bkW - 14 + 16;
+    // na telefonu knjiga sjeda ispod pojasa velikog broja (18 MZ), ne u njega; položeno — u desnu kolonu
+    const bookY = NIZAK ? 46 : W < 780 ? H * .235 : H * .16;
+    const bkRows = NIZAK ? 6 : 9, bkRow = NIZAK ? 21 : 25;
+    const bkA = ss(seg(t, 160, 163));                 // knjiga ima svoje mjesto — čioda ga ne dira
+    const bookRect = { x: bookX - 16, y: bookY - 34, w: bkW, h: 46 + bkRows * bkRow };
+    if (bkA > .1) reserve({ x: bookRect.x - 8, y: bookRect.y - 8, w: bookRect.w + 16, h: bookRect.h + 16 });
+    const inBook = (X, Y) => bkA > .12 && X > bookRect.x - 10 && X < bookRect.x + bookRect.w + 10
+                          && Y > bookRect.y - 10 && Y < bookRect.y + bookRect.h + 10;
+    pins.forEach((p, i) => {
+      const born = 154 + i * 1.1, k = eo(seg(t, born, born + .8));
+      if (k <= 0) return;
+      const X = w2sX(p.x, c), Y = w2sY(p.y, c) - (1 - k) * 60;
+      const fate = seg(t, born + 5, born + 6) >= 1;
+      const col = !fate ? '#d6a243' : p.f[1] === 0 ? '#4cc38a' : p.f[1] === 1 ? '#d6a243' : '#e5484d';
+      if (X < -6 || X > W + 6 || Y < -6 || Y > H + 6) return;    // čioda van kadra se ne crta
+      if (inBook(X, Y)) return;                    // čioda ne ulazi u knjigu
+      const overCap = inCap(X, Y);
+      cx2.globalAlpha = a * k * (overCap ? .30 : 1);   // nad natpisom čioda utihne, ne briše se
+      cx2.fillStyle = col; cx2.beginPath(); cx2.arc(X, Y - 10, 6, 0, 7); cx2.fill();
+      cx2.strokeStyle = col; cx2.lineWidth = 2; cx2.beginPath(); cx2.moveTo(X, Y - 4); cx2.lineTo(X, Y + 4); cx2.stroke();
+      if (overCap) return;                         // etiketa ne ulazi u natpis
+      cx2.globalAlpha = a * k;
+      cx2.font = '500 11.5px Inter,sans-serif'; cx2.fillStyle = 'rgba(242,240,234,.8)';
+      // etiketa bježi lijevo kad bi udarila u knjigu, pa traži slobodan red; ako ga nema — ostaje čioda
+      const lw = cx2.measureText(p.l).width;
+      if (bkA > .12 && X + 10 + lw > bookRect.x - 8){ cx2.textAlign = 'right'; label(p.l, X - 10, Y - 8, { step: 16 }); cx2.textAlign = 'left'; }
+      else label(p.l, X + 10, Y - 8, { step: 16 });
+    });
+    // javna knjiga — desna kolona
+    const bk = ss(seg(t, 160, 163));
+    if (bk > 0){
+      cx2.globalAlpha = a * bk;
+      cx2.fillStyle = 'rgba(10,12,16,.97)'; rr(cx2, bookRect.x, bookRect.y, bookRect.w, bookRect.h, 12); cx2.fill();
+      cx2.strokeStyle = 'rgba(242,240,234,.10)'; cx2.lineWidth = 1;
+      rr(cx2, bookRect.x, bookRect.y, bookRect.w, bookRect.h, 12); cx2.stroke();
+      cx2.fillStyle = '#8d939c'; cx2.font = '600 11px Inter,sans-serif';
+      cx2.fillText(ell('JAVNA KNJIGA · PRIJEDLOG → ODLUKA', bkW - 32), bookX, bookY - 12);
+      pins.slice(0, bkRows).forEach((p, i) => {
+        const rowT = ss(seg(t, 161 + i * 1.4, 162 + i * 1.4));
+        if (rowT <= 0) return;
+        const y = bookY + 12 + i * bkRow;
+        cx2.globalAlpha = a * bk * rowT;
+        const col = p.f[1] === 0 ? '#4cc38a' : p.f[1] === 1 ? '#d6a243' : '#e5484d';
+        const mark = p.f[1] === 0 ? '✓' : p.f[1] === 1 ? '…' : '✕';
+        // sudbina ide uz desnu ivicu knjige, a ime se skrati do nje — dva reda se ne susreću
+        cx2.font = '600 12px Inter,sans-serif';
+        const ft = ell(mark + ' ' + p.f[0], bkW - 150), fw = cx2.measureText(ft).width;
+        cx2.fillStyle = col; cx2.textAlign = 'right'; cx2.fillText(ft, bookRect.x + bkW - 16, y); cx2.textAlign = 'left';
+        cx2.fillStyle = 'rgba(242,240,234,.9)'; cx2.font = '500 12.5px Inter,sans-serif';
+        cx2.fillText(ell(p.l, bkW - 48 - fw), bookX, y);
+      });
+    }
+    cx2.restore();
+    if (t >= 171){ num = '18'; numLab = 'mjesnih zajednica · svaki prijedlog sa vidljivom sudbinom'; numCol = '#4cc38a'; }
+    // MZ traka
+    const mzA = ss(seg(t, 171.5, 173)) * (1 - ss(seg(t, 178.5, 180)));
+    if (mzA > 0){ cx2.save(); cx2.auditSkip = true;     // traka namjerno klizi kroz kadar
+      cx2.globalAlpha = mzA * .6; cx2.font = '500 12px Inter,sans-serif'; cx2.fillStyle = '#8d939c';
+      const nEl = $('#num'), nb = (+nEl.style.opacity || 0) > .5 ? nEl.getBoundingClientRect().bottom + 26 : 0;
+      const my = Math.max(H * .085, nb);                // traka ide ispod velikog broja, nikad preko njega
+      const txt = MZ + ' · ' + MZ, w = cx2.measureText(MZ + ' · ').width, off = (t * 36) % w;
+      cx2.fillText(txt, -off, my); cx2.auditSkip = false; cx2.restore(); }
+  }
+
+  /* — SUTRA — */
+  if (t >= 180 && t < 205){
+    const a = ss(seg(t, 182, 185));
+    if (a > 0){
+      const uzak = W < 780 && !NIZAK;                 // telefon uspravno: krive jedna ispod druge
+      const cw = NIZAK ? Math.min(COLW - 30, 300) : uzak ? Math.min(W - 96, 320) : Math.min(W * .34, 390);
+      const chH = NIZAK ? 62 : uzak ? 96 : 150;
+      const Xl = NIZAK ? COLX + 18 : uzak ? (W - cw) / 2 : W / 2 - cw - 40;
+      const Xr = NIZAK ? Xl : uzak ? (W - cw) / 2 : W / 2 + 40;
+      const Yc = NIZAK ? 40 : uzak ? H * .15 : H * .24;
+      const Yr = (NIZAK || uzak) ? Yc + chH + (NIZAK ? 52 : 74) : Yc;
+      lineChart(cx2, Xl, Yc, cw, chH, [[2023, 26544], [2033, 27570], [2043, 28682]], '#e8a33d',
+        (uzak || NIZAK) ? 'STANOVNIKA · +10% ZA 20 GODINA' : 'STANOVNIKA U OBUHVATU PLANA · +10% ZA 20 GODINA', a);
+      lineChart(cx2, Xr, Yr, cw, chH, [[2023, 8470], [2033, 9500], [2043, 10623]], '#5ea8ff',
+        (uzak || NIZAK) ? 'DOMAĆINSTAVA · +25% (2,70 po kući)' : 'DOMAĆINSTAVA · +25% — PROSJEK PADA NA 2,70', a);
+      const b = ss(seg(t, 190, 193));
+      if (b > 0){ cx2.save(); cx2.globalAlpha = b; cx2.textAlign = 'center';
+        const qx = NIZAK ? COLX + COLW / 2 : W / 2, qw = NIZAK ? COLW - 16 : W - 48;
+        let qy = Yr + chH + (NIZAK ? 38 : uzak ? 54 : 74);
+        cx2.fillStyle = 'rgba(242,240,234,.9)';
+        cx2.font = (NIZAK ? '700 13px' : uzak ? '700 15px' : '700 17px') + ' Inter,sans-serif';
+        for (const ln of wrapLines('730.000 noćenja · 10.850 ležaja — turistički scenario istog plana', qw)){
+          cx2.fillText(ln, qx, qy); qy += NIZAK ? 16 : uzak ? 19 : 22; }
+        qy += NIZAK ? 2 : 4;
+        cx2.font = (NIZAK ? '500 11px' : '500 12.5px') + ' Inter,sans-serif'; cx2.fillStyle = '#8d939c';
+        for (const ln of wrapLines('„…ne temelji se na realnim procjenama povećanja broja stanovnika, već na tržišnim trendovima — turistički stan." — elaborat UP, D.1.v', qw)){
+          cx2.fillText(ln, qx, qy); qy += NIZAK ? 14 : 17; }
+        cx2.restore(); }
+    }
+  }
+
+  /* — KRAJ — grad se vrati cijel, sa zlatnim tragom svih stavova odjednom */
+  if (t >= 205){
+    bakeSunTo(sOrder.length);                       // i na direktan skok, ne samo u prolazu
+    const e = ss(seg(t, 205.5, 209));
+    blit(cx2, sun, c, .10 + .20 * e);
+    cx2.save();                                     // vrelina → krošnje, tanak trag
+    const rr2 = 15 * c.s;
+    for (let i = 0; i < D.heat.length; i += 3){
+      const X = w2sX(D.heat[i][0], c), Y = w2sY(D.heat[i][1], c);
+      if (X < -20 || X > W + 20 || Y < -20 || Y > H + 20) continue;
+      cx2.globalAlpha = e * .10; cx2.fillStyle = i % 2 ? '#ff5a3c' : '#2f8f5f';
+      cx2.fillRect(X - rr2, Y - rr2, rr2 * 2, rr2 * 2);
+    }
+    cx2.globalAlpha = e * .22; cx2.strokeStyle = '#5ea8ff'; cx2.lineCap = 'round';
+    for (const cr of D.corridors){                  // koraci
+      if (cr.w < 6) continue;
+      cx2.lineWidth = Math.min(1 + Math.log2(1 + cr.w), 8) * c.s;
+      cx2.beginPath();
+      for (let i = 0; i < cr.p.length; i += 2){ const X = w2sX(cr.p[i], c), Y = w2sY(cr.p[i+1], c);
+        i ? cx2.lineTo(X, Y) : cx2.moveTo(X, Y); }
+      cx2.stroke();
+    }
+    cx2.restore();
+    // rez u crno: grad se povlači prije kartice, da završna riječ ne stoji nad crtežom
+    const veil = ss(seg(t, 210.5, 213.2));
+    if (veil > 0){ cx2.globalAlpha = veil * .94; cx2.fillStyle = '#07090c'; cx2.fillRect(0, 0, W, H); cx2.globalAlpha = 1; }
+  }
+
+  /* veliki broj */
+  const numEl = $('#num');
+  if (num){ numEl.style.opacity = 1; numEl.querySelector('b').textContent = num;
+    numEl.querySelector('b').style.color = numCol || '#f2f0ea';
+    numEl.querySelector('span').textContent = numLab; }
+  else numEl.style.opacity = 0;
+}
+
+/* ---------- natpisi ---------- */
+function cueAt(t){ let b = null; for (const q of CUES) if (t >= q[0] && t <= q[1] + .6) b = q; return b; }
+function capAlpha(t){ const b = cueAt(t); if (!b) return 0;
+  return ss(seg(t, b[0], b[0] + .7)) * (1 - ss(seg(t, b[1], b[1] + .6))); }
+function captions(t){
+  const el = $('#cap');
+  const best = cueAt(t);
+  const scr = $('#scrim'), scrT = $('#scrimTop');
+  endCard(t); creditsAt(t);   // kartica ne smije da zavisi od natpisa (poslije 212 natpisa nema)
+  if (!best){ el.style.opacity = 0; scr.style.opacity = 0; scrT.style.opacity = $('#num').style.opacity == 1 ? .9 : 0; return; }
+  const a = ss(seg(t, best[0], best[0] + .7)) * (1 - ss(seg(t, best[1], best[1] + .6)));
+  el.style.opacity = a;
+  scr.style.opacity = a * .96;
+  scrT.style.opacity = $('#num').style.opacity == 1 ? .9 : a * .5;
+  if (el.dataset.q !== String(best[0])){
+    el.dataset.q = String(best[0]);
+    el.querySelector('.k').textContent = best[2];
+    el.querySelector('.h').textContent = best[3];
+    el.querySelector('.s').textContent = best[4];
+  }
+  const sEl = $('#src'); let sb = null;
+  for (const q of SRC) if (t >= q[0] && t < q[1]) sb = q;
+  sEl.style.opacity = sb ? .95 : 0;
+  if (sb && sEl.textContent !== sb[2]) sEl.textContent = sb[2];
+}
+function endCard(t){
+  const cd = $('#card');
+  const ck = ss(seg(t, 212.5, 215)) * (1 - ss(seg(t, 219.4, 221.2)));
+  cd.style.opacity = ck;
+  if (ck > 0 && !cd.innerHTML) cd.innerHTML =
+    '<div><div class="t">GRAD KOJI <em style="color:var(--gold-hi);font-style:normal">ZNA</em></div>'+
+    '<div class="u">Digitalno Trebinje · digitalni blizanac iz otvorenih podataka</div>'+
+    '<div class="g">Mjereno: zračenje po zgradi (Global Solar Atlas) · temperatura površine (Landsat 8/9) · 11.654 zgrade (OSM, Overture, Microsoft).<br>'+
+    'Procijenjeno i označeno: proizvodnja panela · hlađenje krošnje · tok posjetilaca.<br>github.com/3esign/citytwin</div></div>';
+}
+
+function creditsAt(t){
+  const el = $('#credits');
+  const a = ss(seg(t, 221.2, 223)) * (1 - ss(seg(t, 240.4, 242)));
+  el.style.opacity = a;
+  if (a <= 0) return;
+  // red po red, u tempu čitanja — stagger iz vremena filma (bez CSS animacije: kadar mora biti ponovljiv)
+  el.querySelectorAll('.rw').forEach((r, i) => {
+    r.style.opacity = ss(seg(t, 221.6 + i * .62, 222.9 + i * .62));
+  });
+}
+
+/* ---------- zvuk: partitura, ne ambijent ----------
+   „Tech calm echo beep": mirna osnova (pogon) + kratki tonovi koji padaju tačno na događaj na ekranu.
+   Visina nosi veličinu podatka (parameter mapping: veće → niže, u ljestvici; glasnoća nikad ne nosi
+   podatak jer percepcija glasnoće nije linearna). Raspored gleda audio sat, JS sat ga samo budi.
+   Film mora da stoji i nem: zvuk je sloj, ne uslov. */
+const K = window.Kompozitor;
+let MUZ = null, POGON = null, RASP = null, sndOn = false, notaBroj = 0;
+
+// stavovi: korijen pogona, boja filtra, jačina — jedan red po stavu
+const STAV = [
+  [  0, 'D2',  380, .40], [ 22, 'D2',  860, .46], [ 62, 'C2',  620, .50],
+  [ 97, 'D2', 1000, .42], [127, 'G1',  760, .44], [152, 'A2',  980, .44],
+  [180, 'D2', 1250, .48], [205, 'D2', 1500, .50], [221, 'D2',  900, .34], [240, 'D2', 600, .0001]
+];
+function stavU(t){ let r = STAV[0]; for (const x of STAV) if (x[0] <= t) r = x; return r; }
+
+function partitura(){
+  const ev = [], at = (t, f) => ev.push({ t, f });
+  const D4 = K.nota('D4'), D5 = K.nota('D5'), A3 = K.nota('A3'), D3 = K.nota('D3');
+  const pent = (koren, i) => K.stepen(koren, 'pentatonika', i);
+
+  // pogon prati stav
+  STAV.forEach(x => at(x[0], a => { const f = K.nota(x[1]);
+    POGON.koren(f, a, 2.2); POGON.boja(x[2], a, 2.5); POGON.jacina(x[3] * .22, a, 2.5); }));
+
+  /* PROLOG — zgrade naviru: tihi tonovi koji se penju, zvono na rečenicu */
+  at(1.2, a => MUZ.zvono(D4, a, { gain: .13, dur: 3 }));
+  for (let i = 0; i < 11; i++) at(2.4 + i * 1.15, a =>
+    MUZ.udar(pent(D5, i % 6), a, { gain: .075, dur: .5, pan: (i % 2 ? .3 : -.3), send: .6 }));
+  at(14.2, a => MUZ.zvono(K.nota('A4'), a, { gain: .12, dur: 3.4 }));
+  at(18.6, a => MUZ.ploha([D3, A3, K.nota('F4')], a, 4, { gain: .09 }));
+
+  /* SUNCE — krovovi se pale: niz zvonkih tonova, pa jedno veliko zvono na „elektranu" */
+  at(22.8, a => MUZ.dah(a, 3.2, { f0: 240, f1: 1400, gain: .07 }));
+  for (let i = 0; i < 16; i++) at(24 + i * 1.55, a =>
+    MUZ.udar(pent(D5, i % 7) * (i > 9 ? 2 : 1), a, { gain: .085, dur: .62, send: .65, pan: ((i % 5) - 2) / 6 }));
+  at(39.2, a => { MUZ.zvono(D4, a, { gain: .17, dur: 4.5 });
+                  MUZ.ploha([D3, A3, K.nota('E4'), K.nota('A4')], a, 6, { gain: .1 }); });
+  for (let i = 0; i < 5; i++) at(50.6 + i * .42, a => MUZ.trzaj(pent(D4, i), a, { gain: .13, dur: .5 }));
+  at(53.4, a => MUZ.zvono(K.nota('A4'), a, { gain: .13, dur: 3.6 }));
+
+  /* VRELINA — toplota raste, pa je krošnja gasi: ton klizi naniže, filtar se otvara */
+  at(62.6, a => MUZ.dah(a, 4.5, { f0: 180, f1: 1500, gain: .1, q: .9 }));
+  for (let i = 0; i < 9; i++) at(71.4 + i * .82, a =>
+    MUZ.udar(K.stepen(D5, 'mol', 1 + i % 5), a, { type: 'triangle', gain: .07, dur: .34, send: .5, pan: ((i % 3) - 1) * .4 }));
+  for (let i = 0; i < 10; i++) at(80.5 + i * 1.45, a =>
+    MUZ.udar(pent(D5, 6 - i % 6), a, { gain: .08, dur: 1.1, to: pent(D4, 2), send: .8 }));
+  at(93.5, a => MUZ.ploha([K.nota('C3'), K.nota('G3'), K.nota('D4')], a, 4.5, { gain: .09 }));
+
+  /* KORACI — tok: tih puls, ubrzan kad raste pritisak */
+  for (let i = 0, t = 98; t < 114.4; i++, t += .62) at(t, a =>
+    MUZ.trzaj(i % 4 === 0 ? pent(D3, 2) : pent(D3, 0), a, { gain: i % 4 === 0 ? .1 : .055, dur: .3, send: .3 }));
+  at(106.3, a => MUZ.zvono(A3, a, { gain: .12, dur: 3 }));
+  for (let i = 0, t = 115; t < 126.5; i++, t += .46) at(t, a =>
+    MUZ.trzaj(i % 4 === 0 ? pent(D3, 4) : pent(D3, 2), a, { gain: i % 4 === 0 ? .11 : .06, dur: .28, send: .35 }));
+
+  /* NOVAC — svaka stavka svoja nota: veći iznos → niža (preslikavanje veličine u stepenik) */
+  const iz = MONEY.map(m => m.m), mn = Math.min(...iz), mx = Math.max(...iz);
+  MONEY.forEach((it, i) => at(129.4 + i * 1.5, a =>
+    MUZ.trzaj(pent(D4, K.uStepen(it.m, mn, mx, 7, 0)), a, { gain: .14, dur: .7, send: .55, pan: ((i % 4) - 1.5) / 4 })));
+  at(139.3, a => MUZ.ploha([K.nota('G2'), D3, K.nota('A3')], a, 7, { gain: .1 }));
+  at(150.6, a => MUZ.zvono(D4, a, { gain: .14, dur: 4 }));
+
+  /* GLAS — čioda dobije ton, pa sudbinu: usvojeno se penje, odbijeno pada, razmatra se stoji */
+  (pins || []).slice(0, 14).forEach((pn, i) => {
+    const t0 = 154 + i * 1.1;
+    at(t0, a => MUZ.udar(pent(D5, i % 5), a, { gain: .08, dur: .45, send: .6, pan: ((i % 5) - 2) / 5 }));
+    at(t0 + 5.5, a => {
+      const f = pn.f[1];
+      if (f === 0){ MUZ.udar(pent(D5, 2), a, { gain: .1, dur: .3, send: .6 });
+                    MUZ.udar(pent(D5, 4), a + .16, { gain: .1, dur: .6, send: .7 }); }
+      else if (f === 1) MUZ.udar(pent(D4, 3), a, { gain: .07, dur: .5, send: .4 });
+      else MUZ.udar(pent(D5, 3), a, { gain: .09, dur: .8, to: pent(D4, 1), send: .7 });
+    });
+  });
+  at(171.4, a => { MUZ.zvono(D4, a, { gain: .15, dur: 4.5 });
+                   MUZ.ploha([D3, A3, K.nota('E4')], a, 6, { gain: .1 }); });
+
+  /* SUTRA — dvije krive: spor niz koji se penje */
+  at(181.5, a => MUZ.ploha([D3, A3, K.nota('E4'), K.nota('A4')], a, 7, { gain: .1 }));
+  for (let i = 0; i < 8; i++) at(185.2 + i * 2.2, a =>
+    MUZ.udar(K.stepen(D4, 'dorski', i), a, { gain: .08, dur: 1.4, send: .75, pan: (i % 2 ? .25 : -.25) }));
+  at(190.6, a => MUZ.zvono(K.nota('F4'), a, { gain: .13, dur: 4 }));
+
+  /* EPILOG i POTPIS — sve se slegne, pa tišina */
+  at(205.8, a => MUZ.ploha([K.nota('D2'), K.nota('A2'), D3, K.nota('F3'), A3, K.nota('E4')], a, 9, { gain: .13 }));
+  at(212.9, a => MUZ.zvono(D5, a, { gain: .14, dur: 5 }));
+  at(221.6, a => MUZ.zvono(K.nota('A4'), a, { gain: .12, dur: 4.5 }));
+  at(223.4, a => MUZ.ploha([D3, A3, D4], a, 12, { gain: .075 }));
+  at(237.5, a => MUZ.zvono(D4, a, { gain: .1, dur: 4.5 }));
+  return ev;
+}
+
+// izvedi cijelu partituru van realnog vremena i vrati mjeru — za kapiju, ne za slušanje
+async function zvukQC(dur){
+  if (!K) return { greska: 'kompozitor nije učitan' };
+  const OC = new OfflineAudioContext(2, Math.ceil(44100 * dur), 44100);
+  const M = K({ ctx: OC }), prevM = MUZ, prevP = POGON;
+  MUZ = M; POGON = M.Pogon();
+  M.out.gain.value = .9;           // ista jačina koja se i isporučuje
+  const x0 = stavU(0); POGON.odmah(K.nota(x0[1]), x0[2], x0[3] * .22, 0);
+  const ev = partitura();
+  ev.filter(e => e.t < dur - .2).forEach(e => { try { e.f(Math.max(e.t, .02)); } catch (err) {} });
+  const buf = await OC.startRendering();
+  MUZ = prevM; POGON = prevP;
+  const L = buf.getChannelData(0), R = buf.getChannelData(1), sr = buf.sampleRate;
+  const sek = []; let peak = 0, mono = 0, n = 0;
+  for (let q = 0; q < Math.floor(dur); q++){
+    let sum = 0, pk = 0;
+    for (let i = q * sr; i < (q + 1) * sr && i < L.length; i++){
+      const v = (L[i] + R[i]) / 2; sum += v * v; const av = Math.abs(v); if (av > pk) pk = av;
+      mono += v * v; n++;
+    }
+    if (pk > peak) peak = pk;
+    sek.push({ s: q, rms: +Math.sqrt(sum / sr).toFixed(5), pk: +pk.toFixed(3) });
+  }
+  return { dur, peak: +peak.toFixed(3), rms: +Math.sqrt(mono / Math.max(n, 1)).toFixed(5),
+           note: ev.length, sek };
+}
+function muzPodigni(){
+  if (MUZ || !K) return !!MUZ;
+  MUZ = K({}); POGON = MUZ.Pogon(); RASP = MUZ.Raspored(partitura());
+  muzSkok(tCur);
+  return true;
+}
+function muzSkok(t){                                  // skok ili pauza: raspored i pogon odmah na stanje stava
+  if (!MUZ) return;
+  MUZ.tišina(); RASP.reset(t);
+  const x = stavU(t);
+  POGON.odmah(K.nota(x[1]), x[2], x[3] * .22, MUZ.ctx.currentTime);
+}
+function sndToggle(){
+  if (!K){ return; }
+  sndOn = !sndOn;
+  if (sndOn){ muzPodigni(); MUZ.ctx.resume(); MUZ.uključi(.9, 1.4); }
+  else if (MUZ) MUZ.isključi(.7);
+  try { localStorage.setItem('film.zvuk', sndOn ? '1' : '0'); } catch (e) {}
+  drawSndBtn();
+}
+// zvuk se pali tek na ljudski pokret (politika automatskog puštanja), i to sam —
+// osim ako ga je gledalac ranije izričito ugasio
+function naprviDodir(e){
+  if (e && e.target && e.target.closest && e.target.closest('#bar')) return;   // dugmad rade svoj posao
+  removeEventListener('pointerdown', naprviDodir, true);
+  removeEventListener('keydown', naprviDodir, true);
+  let pamti = null; try { pamti = localStorage.getItem('film.zvuk'); } catch (e2) {}
+  if (pamti !== '0' && !sndOn) sndToggle();
+}
+function drawSndBtn(){
+  $('#bSnd').innerHTML = sndOn
+    ? '<svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M3 7v4h3l4 3V4L6 7H3z" fill="currentColor"/><path d="M12.5 6.5a4 4 0 010 5M14.5 4.5a7 7 0 010 9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>'
+    : '<svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M3 7v4h3l4 3V4L6 7H3z" fill="currentColor" opacity=".55"/><path d="M12 7l4 4m0-4l-4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>';
+}
+
+/* ---------- transport ---------- */
+let tCur = 0, playing = false, last = 0, raf = 0, idleT = 0;
+function tick(ts){
+  raf = requestAnimationFrame(tick);
+  const dt = Math.min((ts - last) / 1000, .1); last = ts;
+  if (playing){ tCur += dt; if (tCur >= DUR){ tCur = DUR; pause(); } }
+  idleT += dt;
+  draw(tCur); captions(tCur); hud();
+  if (sndOn && RASP) notaBroj += RASP.kadar(tCur);    // note za sljedećih 150 ms, po audio satu
+}
+/* ---------- revizija preklapanja (?shot=1&audit=1) ----------
+   Svaki ispis teksta — na platnu i u HTML sloju — prijavi svoj pravougaonik, pa se parovi
+   presijeku računom. Oko ne vidi portret i sto u istom danu; mjera vidi. */
+let AUD = null;
+function auditPatch(){
+  if (AUD) return; AUD = [];
+  const ft = CanvasRenderingContext2D.prototype.fillText;
+  cx2.fillText = function(s, x, y, ...r){
+    const txt = String(s);
+    if (this.globalAlpha > .3 && txt.trim() && !this.auditSkip){
+      const m = this.measureText(txt);
+      const asc = m.actualBoundingBoxAscent || 9, des = m.actualBoundingBoxDescent || 3;
+      let x0 = x;
+      if (this.textAlign === 'center') x0 = x - m.width / 2;
+      else if (this.textAlign === 'right' || this.textAlign === 'end') x0 = x - m.width;
+      AUD.push({ k: 'c', o: 'c' + AUD.length, s: txt, x: x0, y: y - asc, w: m.width, h: asc + des });
+    }
+    return ft.call(this, s, x, y, ...r);
+  };
+}
+// kutija reda → kutija mastila: osnovna linija se izračuna iz metrika pisma, pa se uzme stvarni ascent/descent
+function inkRect(r, font, txt){
+  const m = (inkRect.c || (inkRect.c = document.createElement('canvas').getContext('2d')));
+  m.font = font;
+  const q = m.measureText(txt);
+  const fa = q.fontBoundingBoxAscent, fd = q.fontBoundingBoxDescent;
+  const aa = q.actualBoundingBoxAscent, ad = q.actualBoundingBoxDescent;
+  if (!(fa > 0) || !(aa > 0)) return r;
+  const base = r.top + (r.height - (fa + fd)) / 2 + fa;
+  const top = Math.max(r.top, base - aa), bot = Math.min(r.bottom, base + ad);
+  return bot - top > 1 ? { left: r.left, top, width: r.width, height: bot - top } : r;
+}
+function domRects(){
+  const out = [], rng = document.createRange(); let oi = 0;
+  const eff = el => { let o = 1, n = el; while (n && n !== document.body){ o *= (+getComputedStyle(n).opacity || 0); n = n.parentElement; } return o; };
+  document.querySelectorAll('#cap .k,#cap .h,#cap .s,#num b,#num span,#src,#card .t,#card .u,#card .g,#credits .rw,#tm').forEach(el => {
+    oi++;
+    if (!el.textContent.trim() || eff(el) < .3) return;
+    const cs = getComputedStyle(el);
+    if (cs.display === 'none' || cs.visibility === 'hidden') return;
+    rng.selectNodeContents(el);                       // tijesni okviri po redu, ne cijeli blok
+    for (const r0 of rng.getClientRects()){
+      if (r0.width <= 2 || r0.height <= 2) continue;
+      const r = inkRect(r0, cs.font || (cs.fontWeight + ' ' + cs.fontSize + ' ' + cs.fontFamily), el.textContent.trim());
+      out.push({ k: 'd', o: 'd' + oi, s: el.textContent.trim().slice(0, 46), x: r.left, y: r.top, w: r.width, h: r.height });
+    }
+  });
+  return out;
+}
+function auditReport(){
+  const all = (AUD || []).concat(domRects()), bad = [];
+  const ar = r => r.w * r.h;
+  for (let i = 0; i < all.length; i++) for (let j = i + 1; j < all.length; j++){
+    const a = all[i], b = all[j];
+    if (a.o === b.o) continue;                        // isti element u dva reda nije kvar
+    const ox = Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x);
+    const oy = Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y);
+    if (ox <= 1 || oy <= 1) continue;
+    const q = ox * oy / Math.min(ar(a), ar(b));
+    if (q < .08) continue;                            // dodir rubom nije preklapanje
+    bad.push({ a: a.k + ':' + a.s.slice(0, 40), b: b.k + ':' + b.s.slice(0, 40), q: Math.round(q * 100) });
+  }
+  const off = all.filter(r => r.x < -2 || r.y < -2 || r.x + r.w > W + 2 || r.y + r.h > H + 2)
+                 .map(r => ({ s: r.k + ':' + r.s.slice(0, 40), x: Math.round(r.x), y: Math.round(r.y), w: Math.round(r.w) }));
+  return { t: +tCur.toFixed(1), W, H, n: all.length, bad, off, bands: uiBands().map(b => ({x:Math.round(b.x),y:Math.round(b.y),w:Math.round(b.w),h:Math.round(b.h)})) };
+}
+function dbgDraw(){
+  cx2.save(); cx2.setTransform(DPR,0,0,DPR,0,0);
+  cx2.strokeStyle='#4cc38a'; cx2.lineWidth=1; cx2.font='11px monospace'; cx2.fillStyle='#4cc38a';
+  uiBands().forEach(b=>{cx2.strokeRect(b.x,b.y,b.w,b.h);});
+  cx2.restore();
+}
+function hud(){
+  const m = Math.floor(tCur / 60), s = Math.floor(tCur % 60);
+  $('#tm').textContent = `${m}:${String(s).padStart(2,'0')} / ${DURL}`;
+  SC.forEach((sc, i) => {
+    const f = chEls[i].firstChild;
+    f.style.width = (seg(tCur, sc.t0, sc.t1) * 100) + '%';
+  });
+  $('#bar').classList.toggle('hid', playing && idleT > 3.2);
+  $('#hint').style.opacity = playing && idleT > 3.2 ? 0 : 1;
+}
+function play(){ if (tCur >= DUR) seek(0); playing = true; idleT = 0; drawPlayBtn(); if (MUZ) MUZ.ctx.resume(); }
+function pause(){ playing = false; idleT = 0; drawPlayBtn(); if (MUZ) MUZ.tišina(); }
+function seek(t){
+  tCur = clamp(t, 0, DUR); idleT = 0;
+  $('#cap').dataset.q = ''; if (tCur < 212) $('#card').innerHTML = '';
+  if (sndOn) muzSkok(tCur);
+}
+function drawPlayBtn(){
+  $('#bPlay').innerHTML = playing
+    ? '<svg width="20" height="20" viewBox="0 0 20 20"><path d="M5 3h3.4v14H5zM11.6 3H15v14h-3.4z" fill="currentColor"/></svg>'
+    : '<svg width="20" height="20" viewBox="0 0 20 20"><path d="M5.5 3l11 7-11 7z" fill="currentColor"/></svg>';
+}
+
+/* ---------- UI ---------- */
+const chEls = [];
+SC.forEach((sc, i) => {
+  const d = document.createElement('div'); d.className = 'ch'; d.dataset.n = sc.n;
+  d.style.setProperty('--acc', sc.acc);
+  const f = document.createElement('i'); d.appendChild(f);
+  d.onclick = e => { const r = d.getBoundingClientRect();
+    seek(sc.t0 + (e.clientX - r.left) / r.width * (sc.t1 - sc.t0)); };
+  $('#chapters').appendChild(d); chEls.push(d);
+});
+$('#bPlay').onclick = () => playing ? pause() : play();
+$('#bSnd').onclick = sndToggle;
+$('#bFull').onclick = () => document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
+$('#bInfo').onclick = () => { $('#info').style.display = 'grid'; pause(); };
+$('#info .x').onclick = () => $('#info').style.display = 'none';
+addEventListener('keydown', e => {
+  if (e.key === ' '){ e.preventDefault(); playing ? pause() : play(); }
+  if (e.key === 'ArrowRight'){ const n = SC.find(s => s.t0 > tCur + .5); seek(n ? n.t0 : DUR); }
+  if (e.key === 'ArrowLeft'){ const p = [...SC].reverse().find(s => s.t0 < tCur - 1.5); seek(p ? p.t0 : 0); }
+  if (e.key === 'f') $('#bFull').click();
+  if (e.key === 'Escape') $('#info').style.display = 'none';
+});
+addEventListener('pointermove', () => idleT = 0);
+drawPlayBtn(); drawSndBtn();
+
+/* ---------- start ---------- */
+fetch('film_data.json').then(r => { if (!r.ok) throw 0; return r.json(); }).then(d => {
+  D = d; prep();
+  const q = new URLSearchParams(location.search);
+  if (q.has('t')) seek(parseFloat(q.get('t')) || 0);
+  window.FILM = { seek, play, pause, draw, captions, hud, zvukQC, zvuk: sndToggle,
+    get t(){ return tCur; }, get nota(){ return notaBroj; }, get zvukRadi(){ return sndOn; } };  // za testove i salu
+  if (q.has('shot')){                       // jedan kadar, bez petlje — snimanje i izvlačenje slika
+    document.body.classList.add('shot');
+    if (q.has('audit')) auditPatch();
+    for (let i = 0; i < 3; i++){ draw(tCur); captions(tCur); hud(); }   // animacije se slegnu
+    if (q.has('audit')){
+      // jedan browser prolazi cijeli film: pečenje se plati jednom, mjeri se svaki traženi trenutak
+      window.FILM.audit = tt => {
+        seek(tt);
+        for (let i = 0; i < 3; i++){ draw(tCur); captions(tCur); hud(); }
+        AUD.length = 0; draw(tCur); captions(tCur);   // mjeri se posljednji, slegnuti kadar
+        return auditReport();
+      };
+      window.FILM.ready = true;
+    }
+    if (q.has('dbg')) dbgDraw();
+    return;
+  }
+  if (!q.has('pause')) play();
+  addEventListener('pointerdown', naprviDodir, true);
+  addEventListener('keydown', naprviDodir, true);
+  last = performance.now(); raf = requestAnimationFrame(tick);
+}).catch(() => { $('#err').style.display = 'grid'; });
+</script>
+</body>
+</html>
